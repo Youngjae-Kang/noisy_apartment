@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>층간수사대</title>
+    <title>층간수사대 M</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700&display=swap');
 
@@ -58,28 +58,16 @@
         .status-bar { display: flex; justify-content: center; gap: 20px; font-size: 1rem; font-weight: bold; }
         .score-num { color: #2ecc71; font-size: 1.3rem; }
 
-        /* --- 게임 영역 (수정된 부분) --- */
+        /* 게임 영역 */
         .game-container {
-            /* 상단 패널 높이만큼 여백 */
-            margin-top: 150px; 
-            flex-grow: 1; 
-            display: flex; 
-            flex-direction: column;
-            align-items: center; 
-            /* 중앙 정렬 제거하고 위에서부터 시작 (겹침 방지) */
-            justify-content: flex-start; 
-            width: 100%; 
-            overflow-y: auto; 
-            /* 하단 버튼 높이보다 훨씬 넉넉하게 여백 추가 */
-            padding-bottom: 160px; 
-            padding-top: 20px;
+            margin-top: 150px; flex-grow: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: flex-start; width: 100%; 
+            overflow-y: auto; padding-bottom: 160px; padding-top: 20px;
         }
 
         .building-container {
             background-color: #34495e; padding: 20px; border-radius: 8px;
             box-shadow: 0 15px 40px rgba(0,0,0,0.6); border: 4px solid #1a252f; position: relative;
-            /* 가로 스크롤 방지 및 중앙 정렬 */
-            margin-left: auto; margin-right: auto;
         }
         .roof { position: absolute; top: -15px; left: -5px; right: -5px; height: 15px; background-color: #1a1a1a; border-radius: 5px 5px 0 0; }
 
@@ -94,7 +82,6 @@
         }
         .window:active { transform: scale(0.95); }
         .window.revealed { cursor: default; }
-
         .window.revealed.safe { background-color: #f5f6fa; border-color: #dcdde1; box-shadow: none; }
         .window.revealed.level-1 { background-color: #fff9c4; color: #fbc02d; border-color: #fbc02d; box-shadow: inset 0 0 10px #fff176; }
         .window.revealed.level-2 { background-color: #ffcc80; color: #e65100; border-color: #fb8c00; box-shadow: inset 0 0 10px #ffb74d; font-weight: 900; }
@@ -111,12 +98,11 @@
         .window.safe-open { animation: flashSafe 0.5s; background-color: #dff9fb; }
         @keyframes flashSafe { 0% { background-color: #2980b9; } 100% { background-color: #dff9fb; } }
 
-        /* --- 하단 컨트롤 (배경 추가) --- */
+        /* 하단 컨트롤 */
         .controls {
             position: fixed; bottom: 0; left: 0; right: 0;
             display: flex; justify-content: center; gap: 15px; z-index: 100;
             padding-bottom: 20px; padding-top: 20px;
-            /* 버튼 뒤가 잘 보이도록 배경 그라데이션 추가 */
             background: linear-gradient(to top, rgba(44, 62, 80, 1) 40%, rgba(44, 62, 80, 0));
         }
         .mode-btn {
@@ -135,16 +121,20 @@
             border: 2px solid white; white-space: nowrap; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
+        /* 모달 스타일 */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 999; }
         .modal-content { background: #fff; color: #333; width: 90%; max-width: 400px; padding: 25px; border-radius: 15px; text-align: left; }
         .modal-header { font-family: 'Black Han Sans'; font-size: 1.6rem; margin-bottom: 15px; color: #2c3e50; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        
         .tuto-step { display: none; }
         .tuto-step.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
         .tuto-visual { background: #f0f0f0; border-radius: 10px; padding: 15px; margin: 15px 0; text-align: center; font-size: 2rem; font-weight: bold; border: 2px dashed #ccc; }
         .tuto-desc { font-size: 1.05rem; line-height: 1.6; color: #555; }
         .highlight { color: #e74c3c; font-weight: bold; background: #ffebee; padding: 0 4px; border-radius: 4px;}
         .highlight-blue { color: #2980b9; font-weight: bold; }
+
         .modal-footer { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
         .btn-next { background: #2c3e50; color: white; padding: 10px 24px; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; }
         .btn-prev { background: #95a5a6; color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; }
@@ -174,47 +164,34 @@
 
             <div class="tuto-step" id="step-1">
                 <div class="tuto-desc">범인은 <b>[아래, 왼쪽, 오른쪽]</b> 집을 공격합니다.<br>(소음은 아래로 내려가니까요!)</div>
-                <div class="tuto-visual">
-                    👹 <span style="font-size:1rem">⬇(5)</span> 😠
-                </div>
-                <div class="tuto-desc">
-                    따라서 <b>내 집이 시끄럽다면?</b><br>
-                    범인은 <span class="highlight">내 위층이나 옆집</span>에 있습니다!<br>
-                    범인을 찾아 역추적하세요.
-                </div>
+                <div class="tuto-visual">👹 <span style="font-size:1rem">⬇(5)</span> 😠</div>
+                <div class="tuto-desc">따라서 <b>내 집이 시끄럽다면?</b><br>범인은 <span class="highlight">내 위층이나 옆집</span>에 있습니다!<br>범인의 집을 역추적하세요.</div>
             </div>
 
             <div class="tuto-step" id="step-2">
                 <div class="tuto-desc">소음은 <b>중첩(더하기)</b>됩니다!<br>이게 가장 중요한 단서입니다.</div>
-                <div class="tuto-visual">
-                    5 + 5 = <span style="color:red">10</span> 🔥
-                </div>
-                <div class="tuto-desc">
-                    숫자가 <span class="highlight">5 이상</span>이다? 👉 <b>바로 근처(위/옆)에 범인이 있다</b>는 뜻입니다.<br>숫자가 10 이상이면 2명이나 붙어있는 겁니다!
-                </div>
+                <div class="tuto-visual">5 + 5 = <span style="color:red">10</span> 🔥</div>
+                <div class="tuto-desc">숫자가 <span class="highlight">5 이상</span>이다? 👉 <b>바로 근처(위/옆)에 범인이 있다</b>는 뜻입니다.<br>숫자가 10 이상이면 2명이나 붙어있는 겁니다!</div>
             </div>
 
             <div class="tuto-step" id="step-3">
                 <div class="tuto-desc"><b>🤍 흰색 창문은 안전지대</b>입니다.<br>소음이 0인 곳은 마음껏 누르세요.</div>
-                <div class="tuto-visual" style="background:white; border:2px solid #eee;">
-                    🤍 안전 (0dB)
-                </div>
-                <div class="tuto-desc">
-                    범인을 잡으면(검거),<br>그 범인의 <b>상하좌우는 100% 안전</b>해집니다.<br>(범인끼리는 붙어살지 않거든요!)
-                </div>
+                <div class="tuto-visual" style="background:white; border:2px solid #eee;">🤍 안전 (0dB)</div>
+                <div class="tuto-desc">범인을 잡으면(검거),<br>그 범인의 <b>상하좌우는 100% 안전</b>해집니다.<br>(범인끼리는 붙어살지 않거든요!)</div>
             </div>
 
             <div class="tuto-step" id="step-4">
                 <div class="tuto-desc">자, 이제 출동합시다!<br>하단 버튼으로 모드를 변경하세요.</div>
-                <div class="tuto-visual">
-                    <span style="color:#f1c40f">🔍 조사</span> vs <span style="color:#e74c3c">👮 검거</span>
-                </div>
-                <div class="tuto-desc">
-                    실수로 <span class="highlight">범인</span>을 조사하거나 <span class="highlight">억울한 시민</span>을 잡으면<br>
-                    <b>하트가 깎입니다!</b> (즉시 게임오버 아님)<br>
-                    (PC는 우클릭으로 바로 검거 가능)
-                </div>
+                <div class="tuto-visual"><span style="color:#f1c40f">🔍 조사</span> vs <span style="color:#e74c3c">👮 검거</span></div>
+                <div class="tuto-desc">실수로 <span class="highlight">범인</span>을 조사하거나 <span class="highlight">억울한 시민</span>을 잡으면<br><b>하트가 깎입니다!</b> (즉시 게임오버 아님)</div>
             </div>
+
+            <div class="modal-footer">
+                <button class="btn-prev" onclick="prevStep()">◀ 이전</button>
+                <button class="btn-next" onclick="nextStep()">다음 ▶</button>
+            </div>
+        </div>
+    </div>
 
     <div id="game-over-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="text-align: center;">
@@ -234,7 +211,7 @@
 
     <div class="ui-panel">
         <div class="header-row">
-            <h1>🏢 층간수사</h1>
+            <h1>🏢 층간수사대 M</h1>
             <button class="btn-restart-big" onclick="initGame()">🔄 다시 시작</button>
         </div>
         <div class="difficulty-bar">
@@ -268,25 +245,61 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        // 로직은 이전과 동일 (UI만 수정됨)
         let currentStep = 0;
         const totalSteps = 5;
 
         function updateTutorial() {
-            for(let i=0; i<totalSteps; i++) { document.getElementById(`step-${i}`).classList.remove('active'); }
-            document.getElementById(`step-${currentStep}`).classList.add('active');
+            for(let i=0; i<totalSteps; i++) { 
+                const step = document.getElementById(`step-${i}`);
+                if(step) step.classList.remove('active'); 
+            }
+            const current = document.getElementById(`step-${currentStep}`);
+            if(current) current.classList.add('active');
+            
             document.querySelector('.btn-prev').style.display = (currentStep === 0) ? 'none' : 'block';
             document.querySelector('.btn-next').innerText = (currentStep === totalSteps - 1) ? "수사 시작! 😎" : "다음 ▶";
         }
-        function nextStep() { if(currentStep < totalSteps - 1) { currentStep++; updateTutorial(); } else { document.getElementById('tutorial-modal').style.display = 'none'; } }
-        function prevStep() { if(currentStep > 0) { currentStep--; updateTutorial(); } }
 
-        function showGameOver(msg) { document.getElementById('go-message').innerText = msg; document.getElementById('game-over-modal').style.display = 'flex'; }
-        function retryGame() { document.getElementById('game-over-modal').style.display = 'none'; initGame(); }
-        function showVictory() { document.getElementById('victory-modal').style.display = 'flex'; }
-        function retryGameVictory() { document.getElementById('victory-modal').style.display = 'none'; initGame(); }
+        function nextStep() { 
+            if(currentStep < totalSteps - 1) { 
+                currentStep++; 
+                updateTutorial(); 
+            } else { 
+                document.getElementById('tutorial-modal').style.display = 'none'; 
+            } 
+        }
 
-        const DIFFICULTIES = { easy: { rows: 6, cols: 5, criminals: 5 }, normal: { rows: 8, cols: 6, criminals: 8 }, hard: { rows: 10, cols: 8, criminals: 13 } };
+        function prevStep() { 
+            if(currentStep > 0) { 
+                currentStep--; 
+                updateTutorial(); 
+            } 
+        }
+
+        function showGameOver(msg) { 
+            document.getElementById('go-message').innerText = msg; 
+            document.getElementById('game-over-modal').style.display = 'flex'; 
+        }
+
+        function retryGame() { 
+            document.getElementById('game-over-modal').style.display = 'none'; 
+            initGame(); 
+        }
+
+        function showVictory() { 
+            document.getElementById('victory-modal').style.display = 'flex'; 
+        }
+
+        function retryGameVictory() { 
+            document.getElementById('victory-modal').style.display = 'none'; 
+            initGame(); 
+        }
+
+        const DIFFICULTIES = { 
+            easy: { rows: 6, cols: 5, criminals: 5 }, 
+            normal: { rows: 8, cols: 6, criminals: 8 }, 
+            hard: { rows: 10, cols: 8, criminals: 13 } 
+        };
         let currentDiff = DIFFICULTIES.easy;
         let grid = []; let lives = 3; let caught = 0; let isFirstClick = true; let currentMode = 'investigate'; let gameOver = false;
 
