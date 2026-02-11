@@ -48,19 +48,25 @@
         }
         .btn-restart-big:active { transform: translateY(4px); box-shadow: none; }
 
-        .difficulty-bar { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; }
+        /* 난이도 버튼 영역 수정 */
+        .difficulty-bar { display: flex; justify-content: center; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
         .btn-diff {
             background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);
-            color: #ccc; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; cursor: pointer;
+            color: #ccc; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; cursor: pointer;
         }
         .btn-diff.active { background: #f1c40f; color: #2c3e50; font-weight: bold; border-color: #f1c40f; }
+        
+        /* 최고급 난이도 버튼 전용 스타일 */
+        .btn-diff.master { border-color: #9b59b6; color: #d7bde2; }
+        .btn-diff.master.active { background: #9b59b6; color: #fff; border-color: #8e44ad; box-shadow: 0 0 10px #9b59b6; }
 
         .status-bar { display: flex; justify-content: center; gap: 20px; font-size: 1rem; font-weight: bold; }
         .score-num { color: #2ecc71; font-size: 1.3rem; }
 
         /* 게임 영역 */
         .game-container {
-            margin-top: 150px; flex-grow: 1; display: flex; flex-direction: column;
+            margin-top: 160px; /* 난이도 줄바꿈 고려하여 여백 증가 */
+            flex-grow: 1; display: flex; flex-direction: column;
             align-items: center; justify-content: flex-start; width: 100%; 
             overflow-y: auto; padding-bottom: 160px; padding-top: 20px;
         }
@@ -201,7 +207,8 @@
                 </div>
                 <div class="tuto-desc">
                     실수로 <span class="highlight">범인</span>을 조사하거나 <span class="highlight">억울한 시민</span>을 잡으면<br>
-                    <b>하트가 깎입니다!</b> (즉시 게임오버 아님)
+                    <b>하트가 깎입니다!</b> (즉시 게임오버 아님)<br>
+                    대신 범인은 검거된 것으로 인정해줍니다.
                 </div>
             </div>
 
@@ -237,6 +244,7 @@
             <button class="btn-diff active" onclick="setDifficulty('easy', this)">초급</button>
             <button class="btn-diff" onclick="setDifficulty('normal', this)">중급</button>
             <button class="btn-diff" onclick="setDifficulty('hard', this)">고급</button>
+            <button class="btn-diff master" onclick="setDifficulty('master', this)">최고급</button>
         </div>
         <div class="status-bar">
             <div id="lives">❤️❤️❤️</div>
@@ -317,7 +325,8 @@
         const DIFFICULTIES = { 
             easy: { rows: 6, cols: 5, criminals: 5 }, 
             normal: { rows: 8, cols: 6, criminals: 8 }, 
-            hard: { rows: 10, cols: 8, criminals: 13 } 
+            hard: { rows: 10, cols: 8, criminals: 13 },
+            master: { rows: 12, cols: 10, criminals: 20 } // 🔥 최고급 난이도 스펙
         };
         let currentDiff = DIFFICULTIES.easy;
         let grid = []; let lives = 3; let caught = 0; let isFirstClick = true; let currentMode = 'investigate'; let gameOver = false;
@@ -332,6 +341,7 @@
             document.querySelectorAll('.btn-diff').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentDiff = DIFFICULTIES[level];
+            
             document.documentElement.style.setProperty('--cols', currentDiff.cols);
             let containerWidth = Math.min(window.innerWidth, 500) - 40;
             let size = containerWidth / currentDiff.cols;
@@ -416,13 +426,20 @@
 
             if(action === 'investigate') {
                 if(cell.isCriminal) {
-                    // ⭐ 수정: 조사 모드에서 범인 클릭 시 lives 깎고 caught 카운트 올리기
                     lives--; 
                     caught++;
-                    updateUI(); // 점수와 하트 UI 즉시 반영
-                    cell.checked = true; el.classList.add('busted'); openSafeNeighbors(r, c);
-                    if(lives <= 0) { gameOver = true; showGameOver("체력이 모두 소진되었습니다... 💔"); }
-                    else { showToast("범인에게 들켰습니다! (하트 -1)", "red"); if(caught === currentDiff.criminals) setTimeout(() => { gameOver = true; showVictory(); }, 500); }
+                    updateUI();
+                    cell.checked = true; 
+                    el.classList.add('busted'); 
+                    openSafeNeighbors(r, c);
+                    
+                    if(lives <= 0) { 
+                        gameOver = true; 
+                        showGameOver("체력이 모두 소진되었습니다... 💔"); 
+                    } else { 
+                        showToast("범인에게 들켰습니다! (하트 -1)", "red"); 
+                        if(caught === currentDiff.criminals) setTimeout(() => { gameOver = true; showVictory(); }, 500);
+                    }
                 } else { revealCell(r, c); }
             } else {
                 if(cell.isCriminal) {
