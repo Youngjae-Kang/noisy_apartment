@@ -164,26 +164,45 @@
 
             <div class="tuto-step" id="step-1">
                 <div class="tuto-desc">범인은 <b>[아래, 왼쪽, 오른쪽]</b> 집을 공격합니다.<br>(소음은 아래로 내려가니까요!)</div>
-                <div class="tuto-visual">👹 <span style="font-size:1rem">⬇(5)</span> 😠</div>
-                <div class="tuto-desc">따라서 <b>내 집이 시끄럽다면?</b><br>범인은 <span class="highlight">내 위층이나 옆집</span>에 있습니다!<br>범인의 집을 역추적하세요.</div>
+                <div class="tuto-visual">
+                    👹 <span style="font-size:1rem">➡(5)</span> 😠
+                </div>
+                <div class="tuto-desc">
+                    따라서 <b>내 집이 시끄럽다면?</b><br>
+                    범인은 <span class="highlight">내 위층이나 옆집</span>에 있습니다!<br>
+                    범인의 집을 역추적하세요.
+                </div>
             </div>
 
             <div class="tuto-step" id="step-2">
                 <div class="tuto-desc">소음은 <b>중첩(더하기)</b>됩니다!<br>이게 가장 중요한 단서입니다.</div>
-                <div class="tuto-visual">5 + 5 = <span style="color:red">10</span> 🔥</div>
-                <div class="tuto-desc">숫자가 <span class="highlight">5 이상</span>이다? 👉 <b>바로 근처(위/옆)에 범인이 있다</b>는 뜻입니다.<br>숫자가 10 이상이면 2명이나 붙어있는 겁니다!</div>
+                <div class="tuto-visual">
+                    5 + 5 = <span style="color:red">10</span> 🔥
+                </div>
+                <div class="tuto-desc">
+                    숫자가 <span class="highlight">5 이상</span>이다? 👉 <b>바로 근처(위/옆)에 범인이 있다</b>는 뜻입니다.<br>숫자가 10 이상이면 2명이나 붙어있는 겁니다!
+                </div>
             </div>
 
             <div class="tuto-step" id="step-3">
                 <div class="tuto-desc"><b>🤍 흰색 창문은 안전지대</b>입니다.<br>소음이 0인 곳은 마음껏 누르세요.</div>
-                <div class="tuto-visual" style="background:white; border:2px solid #eee;">🤍 안전 (0dB)</div>
-                <div class="tuto-desc">범인을 잡으면(검거),<br>그 범인의 <b>상하좌우는 100% 안전</b>해집니다.<br>(범인끼리는 붙어살지 않거든요!)</div>
+                <div class="tuto-visual" style="background:white; border:2px solid #eee;">
+                    🤍 안전 (0dB)
+                </div>
+                <div class="tuto-desc">
+                    범인을 잡으면(검거),<br>그 범인의 <b>상하좌우는 100% 안전</b>해집니다.<br>(범인끼리는 붙어살지 않거든요!)
+                </div>
             </div>
 
             <div class="tuto-step" id="step-4">
                 <div class="tuto-desc">자, 이제 출동합시다!<br>하단 버튼으로 모드를 변경하세요.</div>
-                <div class="tuto-visual"><span style="color:#f1c40f">🔍 조사</span> vs <span style="color:#e74c3c">👮 검거</span></div>
-                <div class="tuto-desc">실수로 <span class="highlight">범인</span>을 조사하거나 <span class="highlight">억울한 시민</span>을 잡으면<br><b>하트가 깎입니다!</b> (즉시 게임오버 아님)</div>
+                <div class="tuto-visual">
+                    <span style="color:#f1c40f">🔍 조사</span> vs <span style="color:#e74c3c">👮 검거</span>
+                </div>
+                <div class="tuto-desc">
+                    실수로 <span class="highlight">범인</span>을 조사하거나 <span class="highlight">억울한 시민</span>을 잡으면<br>
+                    <b>하트가 깎입니다!</b> (즉시 게임오버 아님)
+                </div>
             </div>
 
             <div class="modal-footer">
@@ -397,8 +416,11 @@
 
             if(action === 'investigate') {
                 if(cell.isCriminal) {
-                    lives--; updateUI();
-                    cell.checked = true; el.classList.add('busted'); caught++; openSafeNeighbors(r, c);
+                    // ⭐ 수정: 조사 모드에서 범인 클릭 시 lives 깎고 caught 카운트 올리기
+                    lives--; 
+                    caught++;
+                    updateUI(); // 점수와 하트 UI 즉시 반영
+                    cell.checked = true; el.classList.add('busted'); openSafeNeighbors(r, c);
                     if(lives <= 0) { gameOver = true; showGameOver("체력이 모두 소진되었습니다... 💔"); }
                     else { showToast("범인에게 들켰습니다! (하트 -1)", "red"); if(caught === currentDiff.criminals) setTimeout(() => { gameOver = true; showVictory(); }, 500); }
                 } else { revealCell(r, c); }
