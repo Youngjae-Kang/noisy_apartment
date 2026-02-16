@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>층간수사대 M : 정보제한</title>
+    <title>층간수사대 M : 열감지수사</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700&display=swap');
 
@@ -33,14 +33,8 @@
             position: fixed; top: 0; z-index: 100; backdrop-filter: blur(5px);
         }
 
-        .header-row {
-            display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 10px;
-        }
-
-        h1 {
-            font-family: 'Black Han Sans', sans-serif; color: #f1c40f;
-            font-size: 1.6rem; margin: 0; text-shadow: 2px 2px 0 #000;
-        }
+        .header-row { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 10px; }
+        h1 { font-family: 'Black Han Sans', sans-serif; color: #f1c40f; font-size: 1.6rem; margin: 0; text-shadow: 2px 2px 0 #000; }
 
         .btn-restart-big {
             background: #e74c3c; color: white; border: none; border-radius: 8px;
@@ -55,26 +49,27 @@
             color: #ccc; padding: 6px 8px; border-radius: 20px; font-size: 0.7rem; cursor: pointer;
         }
         .btn-diff.active { background: #f1c40f; color: #2c3e50; font-weight: bold; border-color: #f1c40f; }
-        
         .btn-diff.master { border-color: #9b59b6; color: #d7bde2; }
         .btn-diff.master.active { background: #9b59b6; color: #fff; border-color: #8e44ad; }
-
         .btn-diff.abyss { border-color: #ff0000; color: #ff9999; }
         .btn-diff.abyss.active { background: #000; color: #ff0000; border-color: #ff0000; box-shadow: 0 0 15px #ff0000; animation: blink-red 1s infinite; }
         @keyframes blink-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-
         .btn-diff.abyss2 { border-color: #581845; color: #c70039; font-weight: 900; }
         .btn-diff.abyss2.active { background: #581845; color: #ffc300; border-color: #ff5733; box-shadow: 0 0 20px #c70039; animation: pulse-purple 1.5s infinite; }
+        @keyframes pulse-purple { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         
         .btn-diff.empty-mode { border-color: #95a5a6; color: #bdc3c7; }
-        .btn-diff.empty-mode.active { background: #7f8c8d; color: #fff; border-color: #bdc3c7; box-shadow: 0 0 10px #7f8c8d; }
+        .btn-diff.empty-mode.active { background: #7f8c8d; color: #fff; border-color: #bdc3c7; }
+        
+        /* 🌡️ 열감지 모드 버튼 스타일 */
+        .btn-diff.heatmap-mode { border-color: #e67e22; color: #f39c12; }
+        .btn-diff.heatmap-mode.active { background: #e67e22; color: #fff; box-shadow: 0 0 10px #e67e22; }
 
         .status-bar { display: flex; justify-content: center; gap: 20px; font-size: 1rem; font-weight: bold; }
         .score-num { color: #2ecc71; font-size: 1.3rem; }
 
         .game-container {
-            margin-top: 180px; 
-            margin-bottom: 120px;
+            margin-top: 180px; margin-bottom: 120px;
             flex-grow: 1; display: flex; flex-direction: column;
             align-items: center; justify-content: center; width: 100%; 
             padding: 10px; box-sizing: border-box;
@@ -98,8 +93,13 @@
         .window:active { transform: scale(0.95); }
         .window.revealed { cursor: default; }
         .window.revealed.safe { background-color: #f5f6fa; border-color: #dcdde1; box-shadow: none; }
-        
         .window.revealed.empty-house { background-color: #7f8c8d; border-color: #2c3e50; color: #2c3e50; opacity: 0.7; }
+
+        /* ⭐ 열감지(히트맵) 클래스 */
+        .window.revealed.h-0 { background-color: #2980b9 !important; border-color: #1c5982; }
+        .window.revealed.h-1 { background-color: #f1c40f !important; border-color: #c29d0b; }
+        .window.revealed.h-2 { background-color: #e67e22 !important; border-color: #b35f15; }
+        .window.revealed.h-3 { background-color: #c0392b !important; border-color: #912b20; animation: pulse-red 1.5s infinite; }
 
         .window.revealed.level-1 { background-color: #fff9c4; color: #fbc02d; border-color: #fbc02d; box-shadow: inset 0 0 10px #fff176; }
         .window.revealed.level-2 { background-color: #ffcc80; color: #e65100; border-color: #fb8c00; box-shadow: inset 0 0 10px #ffb74d; font-weight: 900; }
@@ -107,7 +107,7 @@
         @keyframes pulse-red { 0% { box-shadow: inset 0 0 5px #e57373; } 50% { box-shadow: inset 0 0 20px #e57373; } 100% { box-shadow: inset 0 0 5px #e57373; } }
 
         .noise-icon { font-size: 0.8em; margin-bottom: 2px; }
-        .window.arrested { background-color: #2980b9 !important; color: white !important; border-color: #3498db; }
+        .window.arrested { background-color: #2c3e50 !important; color: white !important; border-color: #bdc3c7; }
         .window.arrested .noise-icon { content: "👮‍♂️"; font-size: 1.5em; }
         .window.angry { background-color: #e74c3c !important; color: white !important; animation: shake 0.4s; }
         .window.busted { background-color: #c0392b !important; color: white !important; border-color: #e74c3c; animation: shake 0.4s; }
@@ -159,16 +159,6 @@
         .modal-footer { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
         .btn-next { background: #2c3e50; color: white; padding: 10px 24px; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; }
         .btn-prev { background: #95a5a6; color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; }
-        
-        .go-msg { font-size: 1.3rem; text-align: center; margin: 20px 0; color: #c0392b; font-weight: bold; line-height: 1.4; }
-        .btn-retry { width: 100%; padding: 15px; background: #e74c3c; color: white; border: none; border-radius: 10px; font-size: 1.2rem; font-family: 'Black Han Sans'; cursor: pointer; transition: transform 0.1s; }
-        .btn-retry:active { transform: scale(0.98); }
-        .win-header { color: #27ae60 !important; }
-        .win-msg { color: #2ecc71 !important; font-size: 1.4rem; }
-        .btn-win { background: #2ecc71 !important; box-shadow: 0 4px 0 #27ae60; }
-        .btn-win:active { transform: translateY(4px); box-shadow: none; }
-        .pc-hint { font-size: 0.8rem; color: #aaa; margin-top: 5px; }
-
     </style>
 </head>
 <body>
@@ -179,51 +169,31 @@
                 <div class="intro-title">작전명: 배관 잠입</div>
                 <div class="intro-subtitle">🐹 신입 햄스터 요원 연수 🐾</div>
             </div>
-            <div class="hamster-hero">🐹🔍🏢</div>
+            <div class="hamster-hero">🐹🔍🌡️</div>
             <div class="tuto-step active" id="step-0">
-                <div class="tuto-desc">찍! 반갑습니다, 요원님! 🐹<br>인간들은 몸이 커서 이 좁은 배관을 통과할 수 없습니다.<br><b>배관을 타고 몰래 이동</b>해서, 층간소음의 주범을 찾아주세요!</div>
-                <div class="tuto-visual">🤫 🐾 잠입 시작! 🔍</div>
-                <div class="tuto-desc"><span class="highlight-blue">첫 번째 클릭은 무조건 안전합니다.</span><br>아무 배관(창문)이나 눌러서 진입하세요!</div>
+                <div class="tuto-desc">찍! 반갑습니다, 요원님! 🐹<br><b>배관을 타고 몰래 이동</b>해서, 층간소음의 주범을 찾아주세요! 첫 번째 클릭은 무조건 안전합니다.</div>
             </div>
             <div class="tuto-step" id="step-1">
-                <div class="tuto-desc">범인은 <b>[아래, 왼쪽, 오른쪽]</b> 집으로 소음을 냅니다.<br>거리에 따라 소음 크기가 달라요!</div>
+                <div class="tuto-desc">범인은 <b>[옆집(5점), 건너편(1점)]</b>에 소음을 냅니다. 숫자가 합쳐지는 원리를 이용해 범인을 역추적하세요!</div>
                 <div class="tuto-visual">👹 ➡(5)➡ 😡 ➡(1)➡ 😠</div>
-                <div class="tuto-desc">🔴 <b>소음 5:</b> 바로 옆집 (1칸 거리)<br>🟡 <b>소음 1:</b> 건너편 집 (2칸 거리)</div>
             </div>
             <div class="tuto-step" id="step-2">
-                <div class="tuto-desc">소음은 <b>중첩(더하기)</b>됩니다!<br>이게 가장 중요한 단서입니다.</div>
-                <div class="tuto-visual">5 + 1 = <span style="color:#e67e22">6</span> 🔊</div>
-                <div class="tuto-desc">숫자가 <span class="highlight">5 이상</span>이다? 👉 <b>바로 근처(위/옆)에 범인이 있다</b>는 뜻입니다.</div>
+                <div class="tuto-desc">특수 임무: <span class="highlight">🏚️정보제한(빈집)</span><br>🚫 표시는 범인이 살지 않는 안전한 빈집입니다. 하지만 센서가 없어 소음을 수치로 알려주지 않습니다!</div>
+                <div class="tuto-visual">🏚️ 🚫 (정보차단)</div>
             </div>
             <div class="tuto-step" id="step-3">
-                <div class="tuto-desc"><b>🤍 흰색 창문은 안전지대</b>입니다.<br>범인을 잡으면 상하좌우는 100% 안전해집니다.</div>
-                <div class="tuto-visual" style="background:white; border:2px solid #eee;">🤍 안전 (0dB)</div>
-            </div>
-            <div class="tuto-step" id="step-4">
-                <div class="tuto-desc">특수 임무: <span class="highlight">🏚️정보제한(빈집)</span><br>🚫 표시는 범인이 살지 않는 안전한 빈집입니다.</div>
-                <div class="tuto-visual">🏚️ 🚫 (측정불가)</div>
-                <div class="tuto-desc">하지만 센서가 없어 소음을 알려주지 않습니다!<br>주변 집들의 숫자를 조합해 빈집 너머를 추리하세요! 찍!</div>
+                <div class="tuto-desc">특수 임무: <span class="highlight">🌡️열감지수사</span><br>숫자 대신 **소음의 농도**를 색깔로 확인하세요!</div>
+                <div class="tuto-visual" style="font-size: 0.9rem; display: flex; flex-direction: column; gap: 5px;">
+                    <div style="background:#2980b9; color:white; padding:4px;">🟦 파랑: 0dB (고요)</div>
+                    <div style="background:#f1c40f; color:black; padding:4px;">🟨 노랑: 1~4dB (미세)</div>
+                    <div style="background:#e67e22; color:white; padding:4px;">🟧 주황: 5~9dB (옆집 범인!)</div>
+                    <div style="background:#c0392b; color:white; padding:4px;">🟥 빨강: 10dB↑ (포위!)</div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn-prev" onclick="prevStep()">◀ 이전</button>
-                <button class="btn-next" onclick="nextStep()">다음 ▶</button>
+                <button class="btn-next" onclick="nextStep()">수사 시작 ▶</button>
             </div>
-        </div>
-    </div>
-
-    <div id="game-over-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header" id="go-title" style="color: #e74c3c;">작전 실패</div>
-            <div class="go-msg" id="go-message">체력이 모두 소진되었습니다... 😭</div>
-            <button class="btn-retry" onclick="retryGame()">🔄 다시 하시겠습니까?</button>
-        </div>
-    </div>
-
-    <div id="victory-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header win-header">🎉 작전 성공!</div>
-            <div class="go-msg win-msg">모든 범인을 검거했습니다! 😎찍!</div>
-            <button class="btn-retry btn-win" onclick="retryGameVictory()">🏆 다시 하시겠습니까?</button>
         </div>
     </div>
 
@@ -238,8 +208,9 @@
             <button class="btn-diff" onclick="setDifficulty('hard', this)">고급</button>
             <button class="btn-diff master" onclick="setDifficulty('master', this)">최고급</button>
             <button class="btn-diff abyss" onclick="setDifficulty('abyss', this)">💀심연</button>
-            <button class="btn-diff abyss2" onclick="setDifficulty('abyss2', this)">♾️심연의심연</button>
+            <button class="btn-diff abyss2" onclick="setDifficulty('abyss2', this)">♾️심연2</button>
             <button class="btn-diff empty-mode" onclick="setDifficulty('empty', this)">🏚️정보제한</button>
+            <button class="btn-diff heatmap-mode" onclick="setDifficulty('heatmap', this)">🌡️열감지수사</button>
         </div>
         <div class="status-bar">
             <div id="lives">❤️❤️❤️</div>
@@ -252,47 +223,36 @@
             <div class="roof"></div>
             <div id="game-board"></div>
         </div>
-        <div class="pc-hint">(PC: 우클릭 = 즉시 검거)</div>
     </div>
 
     <div class="controls" id="controls">
-        <button id="btn-mode-investigate" class="mode-btn btn-investigate active" onclick="setMode('investigate')">🔍 조사하기</button>
-        <button id="btn-mode-arrest" class="mode-btn btn-arrest" onclick="setMode('arrest')">👮 검거하기</button>
+        <button id="btn-mode-investigate" class="mode-btn btn-investigate active" onclick="setMode('investigate')">🔍 조사</button>
+        <button id="btn-mode-arrest" class="mode-btn btn-arrest" onclick="setMode('arrest')">👮 검거</button>
     </div>
 
     <div id="toast" class="toast"></div>
 
     <script>
         let currentStep = 0;
-        const totalSteps = 5;
+        const totalSteps = 4;
 
         function updateTutorial() {
-            for(let i=0; i<totalSteps; i++) { 
-                const step = document.getElementById(`step-${i}`);
-                if(step) step.classList.remove('active'); 
-            }
-            const current = document.getElementById(`step-${currentStep}`);
-            if(current) current.classList.add('active');
+            for(let i=0; i<totalSteps; i++) document.getElementById(`step-${i}`).classList.toggle('active', i === currentStep);
             document.querySelector('.btn-prev').style.display = (currentStep === 0) ? 'none' : 'block';
             document.querySelector('.btn-next').innerText = (currentStep === totalSteps - 1) ? "작전 시작! 😎찍" : "다음 ▶";
         }
-
         function nextStep() { if(currentStep < totalSteps - 1) { currentStep++; updateTutorial(); } else { document.getElementById('tutorial-modal').style.display = 'none'; } }
         function prevStep() { if(currentStep > 0) { currentStep--; updateTutorial(); } }
 
-        function showGameOver(msg) { document.getElementById('go-message').innerHTML = msg; document.getElementById('game-over-modal').style.display = 'flex'; }
-        function retryGame() { document.getElementById('game-over-modal').style.display = 'none'; initGame(); }
-        function showVictory() { document.getElementById('victory-modal').style.display = 'flex'; }
-        function retryGameVictory() { document.getElementById('victory-modal').style.display = 'none'; initGame(); }
-
         const DIFFICULTIES = { 
-            easy: { rows: 6, cols: 5, criminals: 5, emptyRate: 0 }, 
-            normal: { rows: 8, cols: 6, criminals: 8, emptyRate: 0 }, 
-            hard: { rows: 10, cols: 8, criminals: 13, emptyRate: 0 },
-            master: { rows: 12, cols: 10, criminals: 20, emptyRate: 0 },
-            abyss: { rows: 15, cols: 12, criminals: 40, emptyRate: 0 },
-            abyss2: { rows: 20, cols: 15, criminals: 70, emptyRate: 0 },
-            empty: { rows: 10, cols: 8, criminals: 13, emptyRate: 0.25 }
+            easy: { rows: 6, cols: 5, criminals: 5, emptyRate: 0, isHeatmap: false }, 
+            normal: { rows: 8, cols: 6, criminals: 8, emptyRate: 0, isHeatmap: false }, 
+            hard: { rows: 10, cols: 8, criminals: 13, emptyRate: 0, isHeatmap: false },
+            master: { rows: 12, cols: 10, criminals: 20, emptyRate: 0, isHeatmap: false },
+            abyss: { rows: 15, cols: 12, criminals: 40, emptyRate: 0, isHeatmap: false },
+            abyss2: { rows: 20, cols: 15, criminals: 70, emptyRate: 0, isHeatmap: false },
+            empty: { rows: 10, cols: 8, criminals: 13, emptyRate: 0.25, isHeatmap: false },
+            heatmap: { rows: 10, cols: 8, criminals: 15, emptyRate: 0, isHeatmap: true }
         };
         let currentDiff = DIFFICULTIES.easy;
         let grid = []; let lives = 3; let caught = 0; let isFirstClick = true; let currentMode = 'investigate'; let gameOver = false;
@@ -309,13 +269,10 @@
             const padding = 60;
             const availableWidth = window.innerWidth - padding;
             const availableHeight = window.innerHeight - uiPanelHeight - controlsHeight - padding;
-            const sizeByWidth = availableWidth / currentDiff.cols;
-            const sizeByHeight = availableHeight / currentDiff.rows;
-            const finalSize = Math.min(sizeByWidth, sizeByHeight, 60);
+            const finalSize = Math.min(availableWidth / currentDiff.cols, availableHeight / currentDiff.rows, 60);
             document.documentElement.style.setProperty('--cell-size', finalSize + 'px');
             document.documentElement.style.setProperty('--cols', currentDiff.cols);
         }
-
         window.addEventListener('resize', handleResize);
 
         function setDifficulty(level, btn) {
@@ -354,70 +311,48 @@
             grid = [];
             for(let r=0; r<currentDiff.rows; r++){
                 let row = [];
-                for(let c=0; c<currentDiff.cols; c++){
-                    row.push({ isCriminal: false, isEmpty: false, noise: 0, revealed: false, checked: false, el: document.querySelector(`.window[data-r='${r}'][data-c='${c}']`) });
-                }
+                for(let c=0; c<currentDiff.cols; c++) row.push({ isCriminal: false, isEmpty: false, noise: 0, revealed: false, checked: false, el: document.querySelector(`.window[data-r='${r}'][data-c='${c}']`) });
                 grid.push(row);
             }
             let placed = 0;
             while(placed < currentDiff.criminals) {
-                let r = Math.floor(Math.random() * currentDiff.rows); let c = Math.floor(Math.random() * currentDiff.cols);
+                let r = Math.floor(Math.random() * currentDiff.rows), c = Math.floor(Math.random() * currentDiff.cols);
                 if(Math.abs(r - safeR) <= 1 && Math.abs(c - safeC) <= 1) continue;
                 if(grid[r][c].isCriminal) continue;
-                let tooClose = false;
-                [[0,1],[0,-1],[1,0],[-1,0]].forEach(([dr, dc]) => {
-                    let nr=r+dr, nc=c+dc;
-                    if(nr>=0 && nr<currentDiff.rows && nc>=0 && nc<currentDiff.cols && grid[nr][nc].isCriminal) tooClose = true;
-                });
-                if(tooClose) continue;
                 grid[r][c].isCriminal = true; placed++;
             }
-            // 빈집 배치: 범인이 아닌 집들 중에서만 선정 (100% 안전 보장)
             if(currentDiff.emptyRate > 0) {
-                for(let r=0; r<currentDiff.rows; r++){
-                    for(let c=0; c<currentDiff.cols; c++){
-                        if(!grid[r][c].isCriminal && Math.random() < currentDiff.emptyRate && (r !== safeR || c !== safeC)) {
-                            grid[r][c].isEmpty = true;
-                        }
-                    }
-                }
+                for(let r=0; r<currentDiff.rows; r++)
+                    for(let c=0; c<currentDiff.cols; c++)
+                        if(!grid[r][c].isCriminal && Math.random() < currentDiff.emptyRate && (r !== safeR || c !== safeC)) grid[r][c].isEmpty = true;
             }
             const dirs = [{dr:1, dc:0}, {dr:0, dc:-1}, {dr:0, dc:1}];
-            for(let r=0; r<currentDiff.rows; r++){
-                for(let c=0; c<currentDiff.cols; c++){
-                    if(grid[r][c].isCriminal) {
-                        dirs.forEach(d => { addNoise(r+d.dr, c+d.dc, 5); addNoise(r+d.dr*2, c+d.dc*2, 1); });
-                    }
-                }
-            }
+            for(let r=0; r<currentDiff.rows; r++)
+                for(let c=0; c<currentDiff.cols; c++)
+                    if(grid[r][c].isCriminal) dirs.forEach(d => { addNoise(r+d.dr, c+d.dc, 5); addNoise(r+d.dr*2, c+d.dc*2, 1); });
         }
-
         function addNoise(r, c, v) { if(r>=0 && r<currentDiff.rows && c>=0 && c<currentDiff.cols) grid[r][c].noise += v; }
 
         function handleInput(r, c, el, inputType) {
             if(gameOver) return;
             if(isFirstClick) { generateMap(r, c); isFirstClick = false; revealCell(r, c); return; }
-            
-            let cell = grid[r][c];
-            if(cell.revealed || cell.checked) return;
+            let cell = grid[r][c]; if(cell.revealed || cell.checked) return;
             let action = (inputType === 'right') ? 'arrest' : currentMode;
 
             if(action === 'investigate') {
                 if(cell.isCriminal) {
-                    lives--; caught++; updateUI();
-                    cell.checked = true; el.classList.add('busted'); openSafeNeighbors(r, c);
-                    if(lives <= 0) { gameOver = true; showGameOver("체력이 모두 소진되었습니다... 💔"); }
-                    else { showToast("범인 발견! (하트 -1)", "red"); if(caught === currentDiff.criminals) setTimeout(() => { gameOver = true; showVictory(); }, 500); }
-                } else { revealCell(r, c); }
+                    lives--; caught++; updateUI(); cell.checked = true; el.classList.add('busted'); openSafeNeighbors(r, c);
+                    if(lives <= 0) { gameOver = true; alert("체력 소진! 💔"); }
+                    else if(caught === currentDiff.criminals) alert("검거 완료! 😎");
+                } else revealCell(r, c);
             } else {
                 if(cell.isCriminal) {
-                    cell.checked = true; el.classList.add('arrested'); el.querySelector('.noise-icon').innerText = "👮‍♂️"; caught++; updateUI(); openSafeNeighbors(r, c);
-                    if(caught === currentDiff.criminals) { gameOver = true; showVictory(); } else { showToast("검거 성공!", "#3498db"); }
+                    cell.checked = true; el.classList.add('arrested'); caught++; updateUI(); openSafeNeighbors(r, c);
+                    if(caught === currentDiff.criminals) alert("검거 완료! 😎");
                 } else {
                     lives--; updateUI(); el.classList.add('angry');
-                    showToast(`억울해요! (${cell.noise}dB)`, "red");
                     setTimeout(() => { el.classList.remove('angry'); revealCell(r, c); }, 600);
-                    if(lives <= 0) { gameOver = true; showGameOver("민원 폭주로 쫓겨났습니다! 💔"); }
+                    if(lives <= 0) { gameOver = true; alert("해고되었습니다! 💔"); }
                 }
             }
         }
@@ -426,45 +361,35 @@
             let cell = grid[r][c]; if(cell.revealed) return;
             cell.revealed = true; cell.el.classList.add('revealed');
             
-            if(cell.isEmpty) {
-                cell.el.classList.add('empty-house');
-                cell.el.querySelector('.noise-icon').innerText = "🚫";
-                return; 
+            if(cell.isEmpty) { cell.el.classList.add('empty-house'); cell.el.querySelector('.noise-icon').innerText = "🚫"; return; }
+
+            if(currentDiff.isHeatmap) {
+                let h = cell.noise >= 10 ? 3 : (cell.noise >= 5 ? 2 : (cell.noise > 0 ? 1 : 0));
+                cell.el.classList.add(`h-${h}`);
+                if(h === 0) floodFill(r, c);
+                return;
             }
 
-            if(safeBonus) cell.el.classList.add('safe-open');
             if(cell.noise > 0) {
-                let level = 1; let icon = "🔈";
-                if(cell.noise >= 10) { level = 3; icon = "🔥"; } else if(cell.noise >= 5) { level = 2; icon = "🔊"; }
-                cell.el.classList.add(`level-${level}`); cell.el.querySelector('.val').innerText = cell.noise; cell.el.querySelector('.noise-icon').innerText = icon;
-            } else {
-                cell.el.classList.add('safe'); cell.el.querySelector('.noise-icon').innerText = "🤍"; floodFill(r, c);
-            }
+                let lv = cell.noise >= 10 ? 3 : (cell.noise >= 5 ? 2 : 1);
+                cell.el.classList.add(`level-${lv}`); cell.el.querySelector('.val').innerText = cell.noise;
+                cell.el.querySelector('.noise-icon').innerText = ["🔈", "🔊", "🔥"][lv-1];
+            } else { cell.el.classList.add('safe'); cell.el.querySelector('.noise-icon').innerText = "🤍"; floodFill(r, c); }
         }
 
         function floodFill(r, c) {
-            [[0,1],[0,-1],[1,0],[-1,0], [1,1],[1,-1],[-1,1],[-1,-1]].forEach(([dr, dc]) => {
+            [[0,1],[0,-1],[1,0],[-1,0]].forEach(([dr, dc]) => {
                 let nr=r+dr, nc=c+dc;
                 if(nr>=0 && nr<currentDiff.rows && nc>=0 && nc<currentDiff.cols && !grid[nr][nc].isCriminal && !grid[nr][nc].revealed) revealCell(nr, nc);
             });
         }
-
         function openSafeNeighbors(r, c) {
             [[0,1],[0,-1],[1,0],[-1,0]].forEach(([dr, dc]) => {
                 let nr=r+dr, nc=c+dc;
-                if(nr>=0 && nr<currentDiff.rows && nc>=0 && nc<currentDiff.cols && !grid[nr][nc].revealed && !grid[nr][nc].checked) { revealCell(nr, nc, true); }
+                if(nr>=0 && nr<currentDiff.rows && nc>=0 && nc<currentDiff.cols && !grid[nr][nc].revealed && !grid[nr][nc].checked) revealCell(nr, nc, true);
             });
         }
-
-        function updateUI() {
-            let h = ""; for(let i=0; i<3; i++) h += (i < lives ? "❤️" : "💔");
-            document.getElementById('lives').innerHTML = h; scoreEl.innerText = caught;
-        }
-
-        function showToast(msg, color) {
-            toast.innerText = msg; toast.style.display = "block"; toast.style.borderColor = color;
-            setTimeout(() => toast.style.display = "none", 1500);
-        }
+        function updateUI() { let h = ""; for(let i=0; i<3; i++) h += (i < lives ? "❤️" : "💔"); document.getElementById('lives').innerHTML = h; scoreEl.innerText = caught; }
 
         setDifficulty('easy', document.querySelector('.btn-diff.active'));
         updateTutorial(); 
