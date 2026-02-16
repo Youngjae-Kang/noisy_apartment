@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>층간수사대 M : 심연</title>
+    <title>층간수사대 M : 심연의 심연</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700&display=swap');
 
         :root {
-            --cell-size: 40px;
+            --cell-size: 50px;
             --cols: 5;
             --bg-color: #2c3e50;
             --ui-bg: rgba(0,0,0,0.8);
@@ -21,150 +21,223 @@
             text-align: center;
             margin: 0; padding: 0;
             display: flex; flex-direction: column; align-items: center;
-            height: 100vh; height: 100dvh; /* 주소창 제외한 실제 높이 */
-            user-select: none; touch-action: manipulation; 
-            overflow: hidden; /* 전체 스크롤 금지 */
+            min-height: 100vh;
+            user-select: none; touch-action: manipulation; overflow: hidden;
         }
 
-        /* 상단 UI 패널 */
         .ui-panel {
-            width: 100%; background: var(--ui-bg); padding: 10px 0;
+            width: 100%; background: var(--ui-bg); padding: 15px 0;
             box-shadow: 0 5px 20px rgba(0,0,0,0.5); border-bottom: 2px solid #34495e;
-            z-index: 100; backdrop-filter: blur(5px);
-            flex-shrink: 0;
+            position: fixed; top: 0; z-index: 100; backdrop-filter: blur(5px);
         }
 
-        .header-row { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 5px; }
-        h1 { font-family: 'Black Han Sans', sans-serif; color: #f1c40f; font-size: 1.4rem; margin: 0; text-shadow: 2px 2px 0 #000; }
+        .header-row {
+            display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 10px;
+        }
+
+        h1 {
+            font-family: 'Black Han Sans', sans-serif; color: #f1c40f;
+            font-size: 1.6rem; margin: 0; text-shadow: 2px 2px 0 #000;
+        }
 
         .btn-restart-big {
             background: #e74c3c; color: white; border: none; border-radius: 8px;
-            padding: 5px 12px; font-family: 'Black Han Sans'; font-size: 0.9rem;
-            cursor: pointer; box-shadow: 0 3px 0 #c0392b;
+            padding: 8px 16px; font-family: 'Black Han Sans'; font-size: 1rem;
+            cursor: pointer; box-shadow: 0 4px 0 #c0392b; transition: transform 0.1s;
         }
-        .btn-restart-big:active { transform: translateY(2px); box-shadow: none; }
+        .btn-restart-big:active { transform: translateY(4px); box-shadow: none; }
 
-        .difficulty-bar { display: flex; justify-content: center; gap: 4px; margin-bottom: 5px; flex-wrap: wrap; }
+        .difficulty-bar { display: flex; justify-content: center; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; padding: 0 5px; }
         .btn-diff {
             background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);
-            color: #ccc; padding: 4px 8px; border-radius: 15px; font-size: 0.7rem; cursor: pointer;
+            color: #ccc; padding: 6px 8px; border-radius: 20px; font-size: 0.7rem; cursor: pointer;
         }
         .btn-diff.active { background: #f1c40f; color: #2c3e50; font-weight: bold; border-color: #f1c40f; }
+        
+        .btn-diff.master { border-color: #9b59b6; color: #d7bde2; }
+        .btn-diff.master.active { background: #9b59b6; color: #fff; border-color: #8e44ad; }
+
         .btn-diff.abyss { border-color: #ff0000; color: #ff9999; }
-        .btn-diff.abyss.active { background: #ff0000; color: #fff; box-shadow: 0 0 10px #ff0000; }
+        .btn-diff.abyss.active { background: #000; color: #ff0000; border-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
 
-        .status-bar { display: flex; justify-content: center; gap: 15px; font-size: 0.9rem; font-weight: bold; }
-        .score-num { color: #2ecc71; font-size: 1.1rem; }
+        /* ⭐ 심연의 심연 버튼 스타일 (불타는 보라색) */
+        .btn-diff.abyss2 { border-color: #581845; color: #c70039; font-weight: 900; }
+        .btn-diff.abyss2.active { background: #581845; color: #ffc300; border-color: #ff5733; box-shadow: 0 0 20px #c70039; animation: pulse-purple 1.5s infinite; }
+        @keyframes pulse-purple { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        /* 게임 영역: 여기가 핵심 */
+        .status-bar { display: flex; justify-content: center; gap: 20px; font-size: 1rem; font-weight: bold; }
+        .score-num { color: #2ecc71; font-size: 1.3rem; }
+
         .game-container {
-            flex-grow: 1; 
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center; /* 세로 중앙 정렬 */
-            width: 100%; height: 100%;
-            overflow: hidden;
-            padding: 10px; box-sizing: border-box;
+            margin-top: 190px; 
+            flex-grow: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: flex-start; width: 100%; 
+            overflow-y: auto; padding-bottom: 160px; padding-top: 20px;
         }
 
         .building-container {
-            background-color: #34495e; padding: 10px; border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6); border: 4px solid #1a252f; 
-            position: relative; transition: all 0.3s ease;
+            background-color: #34495e; padding: 15px; border-radius: 8px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6); border: 4px solid #1a252f; position: relative;
         }
-        .roof { position: absolute; top: -12px; left: -4px; right: -4px; height: 12px; background-color: #1a1a1a; border-radius: 5px 5px 0 0; }
+        .roof { position: absolute; top: -15px; left: -5px; right: -5px; height: 15px; background-color: #1a1a1a; border-radius: 5px 5px 0 0; }
 
-        #game-board { 
-            display: grid; 
-            grid-template-columns: repeat(var(--cols), var(--cell-size)); 
-            gap: 4px; /* 간격 살짝 줄임 */
-        }
+        #game-board { display: grid; grid-template-columns: repeat(var(--cols), var(--cell-size)); gap: 5px; }
 
         .window {
             width: var(--cell-size); height: var(--cell-size);
-            background-color: #111; border: 2px solid #000; border-bottom-width: 3px; border-radius: 4px;
+            background-color: #111; border: 2px solid #000; border-bottom-width: 4px; border-radius: 4px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             font-size: calc(var(--cell-size) * 0.45); font-weight: bold; 
-            cursor: pointer; position: relative;
+            cursor: pointer; position: relative; transition: transform 0.1s;
         }
+        .window:active { transform: scale(0.95); }
         .window.revealed { cursor: default; }
-        .window.revealed.safe { background-color: #f5f6fa; border-color: #dcdde1; }
-        .window.revealed.level-1 { background-color: #fff9c4; color: #fbc02d; border-color: #fbc02d; }
-        .window.revealed.level-2 { background-color: #ffcc80; color: #e65100; border-color: #fb8c00; }
-        .window.revealed.level-3 { background-color: #ef9a9a; color: #b71c1c; border-color: #c62828; animation: pulse-red 1.5s infinite; }
-        
-        @keyframes pulse-red { 0%, 100% { box-shadow: inset 0 0 5px #e57373; } 50% { box-shadow: inset 0 0 15px #e57373; } }
+        .window.revealed.safe { background-color: #f5f6fa; border-color: #dcdde1; box-shadow: none; }
+        .window.revealed.level-1 { background-color: #fff9c4; color: #fbc02d; border-color: #fbc02d; box-shadow: inset 0 0 10px #fff176; }
+        .window.revealed.level-2 { background-color: #ffcc80; color: #e65100; border-color: #fb8c00; box-shadow: inset 0 0 10px #ffb74d; font-weight: 900; }
+        .window.revealed.level-3 { background-color: #ef9a9a; color: #b71c1c; border-color: #c62828; box-shadow: inset 0 0 15px #e57373; animation: pulse-red 1.5s infinite; }
+        @keyframes pulse-red { 0% { box-shadow: inset 0 0 5px #e57373; } 50% { box-shadow: inset 0 0 20px #e57373; } 100% { box-shadow: inset 0 0 5px #e57373; } }
 
-        .noise-icon { font-size: 0.8em; }
-        .window.arrested { background-color: #2980b9 !important; color: white !important; }
-        .window.arrested .noise-icon { content: "👮‍♂️"; font-size: 1.3em; }
-        .window.busted { background-color: #c0392b !important; color: white !important; }
+        .noise-icon { font-size: 0.8em; margin-bottom: 2px; }
+        .window.arrested { background-color: #2980b9 !important; color: white !important; border-color: #3498db; }
+        .window.arrested .noise-icon { content: "👮‍♂️"; font-size: 1.5em; }
+        .window.angry { background-color: #e74c3c !important; color: white !important; animation: shake 0.4s; }
+        .window.busted { background-color: #c0392b !important; color: white !important; border-color: #e74c3c; animation: shake 0.4s; }
+        .window.busted .noise-icon { content: "👹"; font-size: 1.5em; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .window.safe-open { animation: flashSafe 0.5s; background-color: #dff9fb; }
+        @keyframes flashSafe { 0% { background-color: #2980b9; } 100% { background-color: #dff9fb; } }
 
-        /* 하단 컨트롤 */
         .controls {
-            width: 100%; background: var(--ui-bg);
-            display: flex; justify-content: center; gap: 10px; 
-            padding: 15px 0; flex-shrink: 0;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            position: fixed; bottom: 0; left: 0; right: 0;
+            display: flex; justify-content: center; gap: 15px; z-index: 100;
+            padding-bottom: 20px; padding-top: 20px;
+            background: linear-gradient(to top, rgba(44, 62, 80, 1) 40%, rgba(44, 62, 80, 0));
         }
         .mode-btn {
-            padding: 10px 20px; border-radius: 25px; border: none;
-            font-family: 'Black Han Sans'; font-size: 1rem; color: white;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.3); opacity: 0.6;
+            padding: 14px 28px; border-radius: 35px; border: none;
+            font-family: 'Black Han Sans'; font-size: 1.2rem; color: white;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.5); transition: all 0.2s; opacity: 0.5; transform: scale(0.95);
         }
-        .mode-btn.active { opacity: 1; transform: scale(1.05); border: 2px solid white; }
+        .mode-btn.active { opacity: 1; transform: scale(1.1); box-shadow: 0 0 20px rgba(255,255,255,0.4); z-index: 10; border: 2px solid white; }
         .btn-investigate { background-color: #f1c40f; color: #333; }
         .btn-arrest { background-color: #e74c3c; }
 
         .toast {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9); color: white; padding: 10px 20px;
-            border-radius: 20px; font-size: 0.9rem; display: none; z-index: 500;
-            border: 1px solid white;
+            background: rgba(0,0,0,0.95); color: white; padding: 15px 30px;
+            border-radius: 30px; font-size: 1.1rem; font-weight: bold; display: none; z-index: 500;
+            border: 2px solid white; white-space: nowrap; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
-        /* 모달 스타일 (내용이 길면 모달 내부만 스크롤) */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 999; }
-        .modal-content { background: #fff; color: #333; width: 85%; max-width: 350px; padding: 20px; border-radius: 15px; max-height: 80vh; overflow-y: auto; }
-        .modal-header { font-family: 'Black Han Sans'; font-size: 1.4rem; color: #2c3e50; border-bottom: 2px solid #eee; margin-bottom: 10px; }
-        .tuto-step { display: none; }
-        .tuto-step.active { display: block; }
-        .tuto-visual { background: #f0f0f0; border-radius: 10px; padding: 10px; margin: 10px 0; font-size: 1.5rem; text-align: center; }
-        .tuto-desc { font-size: 0.9rem; line-height: 1.5; text-align: left; }
-        .btn-next { background: #2c3e50; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; }
+        .modal-content { background: #fff; color: #333; width: 90%; max-width: 400px; padding: 25px; border-radius: 20px; text-align: center; }
+        
+        .intro-header { margin-bottom: 20px; }
+        .intro-title {
+            font-family: 'Black Han Sans', sans-serif;
+            font-size: 2rem;
+            color: #f1c40f;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 5px;
+        }
+        .intro-subtitle { font-size: 1.1rem; color: #7f8c8d; font-weight: bold; }
+        .hamster-hero { font-size: 6rem; margin: 20px 0; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+        .tuto-step { display: none; text-align: left; }
+        .tuto-step.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .tuto-visual { background: #f0f0f0; border-radius: 10px; padding: 15px; margin: 15px 0; text-align: center; font-size: 2rem; font-weight: bold; border: 2px dashed #ccc; }
+        .tuto-desc { font-size: 1.05rem; line-height: 1.6; color: #555; }
+        .highlight { color: #e74c3c; font-weight: bold; background: #ffebee; padding: 0 4px; border-radius: 4px;}
+        .highlight-blue { color: #2980b9; font-weight: bold; }
+
+        .modal-footer { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-next { background: #2c3e50; color: white; padding: 10px 24px; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; }
+        .btn-prev { background: #95a5a6; color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; }
+        
+        .go-msg { font-size: 1.3rem; text-align: center; margin: 20px 0; color: #c0392b; font-weight: bold; line-height: 1.4; }
+        .btn-retry { width: 100%; padding: 15px; background: #e74c3c; color: white; border: none; border-radius: 10px; font-size: 1.2rem; font-family: 'Black Han Sans'; cursor: pointer; transition: transform 0.1s; }
+        .btn-retry:active { transform: scale(0.98); }
+        .win-header { color: #27ae60 !important; }
+        .win-msg { color: #2ecc71 !important; font-size: 1.4rem; }
+        .btn-win { background: #2ecc71 !important; box-shadow: 0 4px 0 #27ae60; }
+        .btn-win:active { transform: translateY(4px); box-shadow: none; }
+        .pc-hint { font-size: 0.8rem; color: #aaa; margin-top: 5px; }
+
     </style>
 </head>
 <body>
 
     <div id="tutorial-modal" class="modal-overlay">
         <div class="modal-content">
-            <div class="modal-header">🐹 햄스터 요원 브리핑 🐾</div>
+            <div class="intro-header">
+                <div class="intro-title">작전명: 배관 잠입</div>
+                <div class="intro-subtitle">🐹 신입 햄스터 요원 연수 🐾</div>
+            </div>
+            <div class="hamster-hero">🐹🔍🏢</div>
             <div class="tuto-step active" id="step-0">
-                <div class="tuto-desc">찍! 반갑습니다. 아파트를 뒤흔드는 층간소음 주범을 찾으세요!</div>
-                <div class="tuto-visual">🏢 🔍 👮</div>
-                <div class="tuto-desc"><b>첫 번째 클릭은 무조건 안전합니다.</b> 아무 곳이나 눌러서 수사를 시작하세요!</div>
+                <div class="tuto-desc">찍! 반갑습니다, 요원님! 🐹<br>인간들은 몸이 커서 이 좁은 배관을 통과할 수 없습니다.<br><b>배관을 타고 몰래 이동</b>해서, 층간소음의 주범을 찾아주세요!</div>
+                <div class="tuto-visual">🤫 🐾 잠입 시작! 🔍</div>
+                <div class="tuto-desc"><span class="highlight-blue">첫 번째 클릭은 무조건 안전합니다.</span><br>아무 배관(창문)이나 눌러서 진입하세요!</div>
             </div>
             <div class="tuto-step" id="step-1">
-                <div class="tuto-desc">소음은 위에서 아래/옆으로 흐릅니다.</div>
+                <div class="tuto-desc">범인은 <b>[아래, 왼쪽, 오른쪽]</b> 집으로 소음을 냅니다.<br>거리에 따라 소음 크기가 달라요!</div>
                 <div class="tuto-visual">👹 ➡(5)➡ 😡 ➡(1)➡ 😠</div>
-                <div class="tuto-desc">숫자를 보고 범인의 위치를 역추적하세요!</div>
+                <div class="tuto-desc">🔴 <b>소음 5:</b> 바로 옆집 (1칸 거리)<br>🟡 <b>소음 1:</b> 건너편 집 (2칸 거리)</div>
             </div>
-            <div style="margin-top: 15px; display: flex; justify-content: flex-end;">
+            <div class="tuto-step" id="step-2">
+                <div class="tuto-desc">소음은 <b>중첩(더하기)</b>됩니다!<br>이게 가장 중요한 단서입니다.</div>
+                <div class="tuto-visual">5 + 1 = <span style="color:#e67e22">6</span> 🔊</div>
+                <div class="tuto-desc">숫자가 <span class="highlight">5 이상</span>이다? 👉 <b>바로 근처(위/옆)에 범인이 있다</b>는 뜻입니다.<br>만약 <b>6</b>이라면? 옆에 한 명(5), 멀리 한 명(1)이 있다는 뜻이죠!</div>
+            </div>
+            <div class="tuto-step" id="step-3">
+                <div class="tuto-desc"><b>🤍 흰색 창문은 안전지대</b>입니다.<br>소음이 0인 곳은 마음껏 누르세요.</div>
+                <div class="tuto-visual" style="background:white; border:2px solid #eee;">🤍 안전 (0dB)</div>
+                <div class="tuto-desc">범인을 잡으면(검거),<br>그 범인의 <b>상하좌우는 100% 안전</b>해집니다.</div>
+            </div>
+            <div class="tuto-step" id="step-4">
+                <div class="tuto-desc">자, 이제 출동합시다!<br>하단 버튼으로 모드를 변경하세요.</div>
+                <div class="tuto-visual"><span style="color:#f1c40f">🔍 조사</span> vs <span style="color:#e74c3c">👮 검거</span></div>
+                <div class="tuto-desc">실수로 <span class="highlight">범인</span>을 조사하거나 <span class="highlight">억울한 시민</span>을 잡으면<br><b>하트가 깎입니다!</b> 대신 범인은 검거된 것으로 인정해줍니다.</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-prev" onclick="prevStep()">◀ 이전</button>
                 <button class="btn-next" onclick="nextStep()">다음 ▶</button>
             </div>
         </div>
     </div>
 
-    <div class="ui-panel" id="header">
+    <div id="game-over-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header" id="go-title" style="color: #e74c3c;">작전 실패</div>
+            <div class="go-msg" id="go-message">체력이 모두 소진되었습니다... 😭</div>
+            <button class="btn-retry" onclick="retryGame()">🔄 다시 하시겠습니까?</button>
+        </div>
+    </div>
+
+    <div id="victory-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header win-header">🎉 작전 성공!</div>
+            <div class="go-msg win-msg">모든 범인을 검거했습니다! 😎찍!</div>
+            <button class="btn-retry btn-win" onclick="retryGameVictory()">🏆 다시 하시겠습니까?</button>
+        </div>
+    </div>
+
+    <div class="ui-panel">
         <div class="header-row">
             <h1>🏢 층간수사대 M</h1>
-            <button class="btn-restart-big" onclick="initGame()">🔄 재시작</button>
+            <button class="btn-restart-big" onclick="initGame()">🔄 다시 시작</button>
         </div>
         <div class="difficulty-bar">
             <button class="btn-diff active" onclick="setDifficulty('easy', this)">초급</button>
             <button class="btn-diff" onclick="setDifficulty('normal', this)">중급</button>
             <button class="btn-diff" onclick="setDifficulty('hard', this)">고급</button>
-            <button class="btn-diff" onclick="setDifficulty('master', this)">최고급</button>
+            <button class="btn-diff master" onclick="setDifficulty('master', this)">최고급</button>
             <button class="btn-diff abyss" onclick="setDifficulty('abyss', this)">💀심연</button>
+            <button class="btn-diff abyss2" onclick="setDifficulty('abyss2', this)">♾️심연의심연</button>
         </div>
         <div class="status-bar">
             <div id="lives">❤️❤️❤️</div>
@@ -177,67 +250,72 @@
             <div class="roof"></div>
             <div id="game-board"></div>
         </div>
+        <div class="pc-hint">(PC: 우클릭 = 즉시 검거)</div>
     </div>
 
-    <div class="controls" id="footer">
-        <button id="btn-mode-investigate" class="mode-btn btn-investigate active" onclick="setMode('investigate')">🔍 조사</button>
-        <button id="btn-mode-arrest" class="mode-btn btn-arrest" onclick="setMode('arrest')">👮 검거</button>
+    <div class="controls">
+        <button id="btn-mode-investigate" class="mode-btn btn-investigate active" onclick="setMode('investigate')">🔍 조사하기</button>
+        <button id="btn-mode-arrest" class="mode-btn btn-arrest" onclick="setMode('arrest')">👮 검거하기</button>
     </div>
 
     <div id="toast" class="toast"></div>
 
     <script>
         let currentStep = 0;
-        function nextStep() {
-            document.getElementById(`step-${currentStep}`).classList.remove('active');
-            currentStep++;
-            if(currentStep > 1) document.getElementById('tutorial-modal').style.display = 'none';
-            else document.getElementById(`step-${currentStep}`).classList.add('active');
+        const totalSteps = 5;
+
+        function updateTutorial() {
+            for(let i=0; i<totalSteps; i++) { 
+                const step = document.getElementById(`step-${i}`);
+                if(step) step.classList.remove('active'); 
+            }
+            const current = document.getElementById(`step-${currentStep}`);
+            if(current) current.classList.add('active');
+            document.querySelector('.btn-prev').style.display = (currentStep === 0) ? 'none' : 'block';
+            document.querySelector('.btn-next').innerText = (currentStep === totalSteps - 1) ? "작전 시작! 😎찍" : "다음 ▶";
         }
+
+        function nextStep() { if(currentStep < totalSteps - 1) { currentStep++; updateTutorial(); } else { document.getElementById('tutorial-modal').style.display = 'none'; } }
+        function prevStep() { if(currentStep > 0) { currentStep--; updateTutorial(); } }
+
+        function showGameOver(msg) { document.getElementById('go-message').innerHTML = msg; document.getElementById('game-over-modal').style.display = 'flex'; }
+        function retryGame() { document.getElementById('game-over-modal').style.display = 'none'; initGame(); }
+        function showVictory() { document.getElementById('victory-modal').style.display = 'flex'; }
+        function retryGameVictory() { document.getElementById('victory-modal').style.display = 'none'; initGame(); }
 
         const DIFFICULTIES = { 
             easy: { rows: 6, cols: 5, criminals: 5 }, 
             normal: { rows: 8, cols: 6, criminals: 8 }, 
             hard: { rows: 10, cols: 8, criminals: 13 },
             master: { rows: 12, cols: 10, criminals: 20 },
-            abyss: { rows: 15, cols: 12, criminals: 40 } 
+            abyss: { rows: 15, cols: 12, criminals: 40 },
+            abyss2: { rows: 20, cols: 15, criminals: 70 } // ⭐ 심연의 심연 설정 추가
         };
-        
         let currentDiff = DIFFICULTIES.easy;
-        let grid = [], lives = 3, caught = 0, isFirstClick = true, currentMode = 'investigate', gameOver = false;
+        let grid = []; let lives = 3; let caught = 0; let isFirstClick = true; let currentMode = 'investigate'; let gameOver = false;
 
         const board = document.getElementById('game-board');
+        const livesEl = document.getElementById('lives');
         const scoreEl = document.getElementById('score');
         const totalEl = document.getElementById('total-criminals');
-
-        // ⭐ 화면 크기에 맞게 격자 사이즈 계산하는 핵심 함수
-        function resizeGame() {
-            const headerH = document.getElementById('header').offsetHeight;
-            const footerH = document.getElementById('footer').offsetHeight;
-            const padding = 40; // 여유 공간
-            
-            const availableW = window.innerWidth - padding;
-            const availableH = window.innerHeight - headerH - footerH - padding;
-            
-            const sizeByW = availableW / currentDiff.cols;
-            const sizeByH = availableH / currentDiff.rows;
-            
-            // 가로/세로 중 더 꽉 차는 쪽에 맞춤 (최대 60px 제한)
-            const finalSize = Math.min(sizeByW, sizeByH, 60);
-            
-            document.documentElement.style.setProperty('--cell-size', finalSize + 'px');
-            document.documentElement.style.setProperty('--cols', currentDiff.cols);
-        }
-
-        window.addEventListener('resize', resizeGame);
+        const toast = document.getElementById('toast');
 
         function setDifficulty(level, btn) {
             document.querySelectorAll('.btn-diff').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentDiff = DIFFICULTIES[level];
-            resizeGame();
+            document.documentElement.style.setProperty('--cols', currentDiff.cols);
+            let containerWidth = Math.min(window.innerWidth, 500) - 40;
+            let size = containerWidth / currentDiff.cols;
+            document.documentElement.style.setProperty('--cell-size', size + 'px');
             initGame();
         }
+
+        window.addEventListener('resize', () => {
+             let containerWidth = Math.min(window.innerWidth, 500) - 40;
+             let size = containerWidth / currentDiff.cols;
+             document.documentElement.style.setProperty('--cell-size', size + 'px');
+        });
 
         function initGame() {
             grid = []; lives = 3; caught = 0; isFirstClick = true; gameOver = false;
@@ -266,13 +344,16 @@
             grid = [];
             for(let r=0; r<currentDiff.rows; r++){
                 let row = [];
-                for(let c=0; c<currentDiff.cols; c++) row.push({ isCriminal: false, noise: 0, revealed: false, checked: false, el: document.querySelector(`.window[data-r='${r}'][data-c='${c}']`) });
+                for(let c=0; c<currentDiff.cols; c++){
+                    row.push({ isCriminal: false, noise: 0, revealed: false, checked: false, el: document.querySelector(`.window[data-r='${r}'][data-c='${c}']`) });
+                }
                 grid.push(row);
             }
-            let placed = 0;
-            while(placed < currentDiff.criminals) {
-                let r = Math.floor(Math.random() * currentDiff.rows), c = Math.floor(Math.random() * currentDiff.cols);
-                if(Math.abs(r-safeR)<=1 && Math.abs(c-safeC)<=1) continue;
+            let placed = 0; let attempts = 0;
+            while(placed < currentDiff.criminals && attempts < 10000) { // 맵이 커진 만큼 시도 횟수 증가
+                attempts++;
+                let r = Math.floor(Math.random() * currentDiff.rows); let c = Math.floor(Math.random() * currentDiff.cols);
+                if(Math.abs(r - safeR) <= 1 && Math.abs(c - safeC) <= 1) continue;
                 if(grid[r][c].isCriminal) continue;
                 let tooClose = false;
                 [[0,1],[0,-1],[1,0],[-1,0]].forEach(([dr, dc]) => {
@@ -283,9 +364,13 @@
                 grid[r][c].isCriminal = true; placed++;
             }
             const dirs = [{dr:1, dc:0}, {dr:0, dc:-1}, {dr:0, dc:1}];
-            for(let r=0; r<currentDiff.rows; r++)
-                for(let c=0; c<currentDiff.cols; c++)
-                    if(grid[r][c].isCriminal) dirs.forEach(d => { addNoise(r+d.dr, c+d.dc, 5); addNoise(r+d.dr*2, c+d.dc*2, 1); });
+            for(let r=0; r<currentDiff.rows; r++){
+                for(let c=0; c<currentDiff.cols; c++){
+                    if(grid[r][c].isCriminal) {
+                        dirs.forEach(d => { addNoise(r+d.dr, c+d.dc, 5); addNoise(r+d.dr*2, c+d.dc*2, 1); });
+                    }
+                }
+            }
         }
 
         function addNoise(r, c, v) { if(r>=0 && r<currentDiff.rows && c>=0 && c<currentDiff.cols) grid[r][c].noise += v; }
@@ -293,54 +378,70 @@
         function handleInput(r, c, el, inputType) {
             if(gameOver) return;
             if(isFirstClick) { generateMap(r, c); isFirstClick = false; revealCell(r, c); return; }
-            let cell = grid[r][c]; if(cell.revealed || cell.checked) return;
+            let cell = grid[r][c];
+            if(cell.revealed || cell.checked) return;
             let action = (inputType === 'right') ? 'arrest' : currentMode;
 
             if(action === 'investigate') {
                 if(cell.isCriminal) {
-                    lives--; caught++; updateUI(); cell.checked = true; el.classList.add('busted'); openSafeNeighbors(r, c);
-                    if(lives <= 0) { gameOver = true; alert("수사 실패! 😭"); }
-                    else if(caught === currentDiff.criminals) setTimeout(() => alert("올검거 성공! 😎"), 300);
-                } else revealCell(r, c);
+                    lives--; caught++; updateUI();
+                    cell.checked = true; el.classList.add('busted'); openSafeNeighbors(r, c);
+                    if(lives <= 0) { gameOver = true; showGameOver("체력이 모두 소진되었습니다... 💔"); }
+                    else { showToast("범인에게 들켰습니다! (하트 -1)", "red"); if(caught === currentDiff.criminals) setTimeout(() => { gameOver = true; showVictory(); }, 500); }
+                } else { revealCell(r, c); }
             } else {
                 if(cell.isCriminal) {
-                    cell.checked = true; el.classList.add('arrested'); caught++; updateUI(); openSafeNeighbors(r, c);
-                    if(caught === currentDiff.criminals) alert("올검거 성공! 😎");
-                } else { lives--; updateUI(); el.classList.add('angry'); setTimeout(()=>el.classList.remove('angry'), 500); if(lives <= 0) alert("해고되었습니다! 💔"); }
+                    cell.checked = true; el.classList.add('arrested'); el.querySelector('.noise-icon').innerText = "👮‍♂️"; caught++; updateUI(); openSafeNeighbors(r, c);
+                    if(caught === currentDiff.criminals) { gameOver = true; showVictory(); } else { showToast("검거 성공!", "#3498db"); }
+                } else {
+                    lives--; updateUI(); el.classList.add('angry'); el.querySelector('.noise-icon').innerText = "🤬";
+                    showToast(`억울해요! (${cell.noise}dB)`, "red");
+                    setTimeout(() => { el.classList.remove('angry'); revealCell(r, c); }, 600);
+                    if(lives <= 0) { gameOver = true; showGameOver("민원 폭주로 쫓겨났습니다... 💔"); }
+                }
             }
         }
 
         function revealCell(r, c, safeBonus = false) {
             let cell = grid[r][c]; if(cell.revealed) return;
             cell.revealed = true; cell.el.classList.add('revealed');
+            if(safeBonus) cell.el.classList.add('safe-open');
             if(cell.noise > 0) {
-                let lv = cell.noise >= 10 ? 3 : (cell.noise >= 5 ? 2 : 1);
-                cell.el.classList.add(`level-${lv}`); cell.el.querySelector('.val').innerText = cell.noise;
-                cell.el.querySelector('.noise-icon').innerText = ["🔈", "🔊", "🔥"][lv-1];
-            } else { cell.el.classList.add('safe'); cell.el.querySelector('.noise-icon').innerText = "🤍"; floodFill(r, c); }
+                let level = 1; let icon = "🔈";
+                if(cell.noise >= 10) { level = 3; icon = "🔥"; } else if(cell.noise >= 5) { level = 2; icon = "🔊"; }
+                cell.el.classList.add(`level-${level}`); cell.el.querySelector('.val').innerText = cell.noise; cell.el.querySelector('.noise-icon').innerText = icon;
+            } else {
+                cell.el.classList.add('safe'); cell.el.querySelector('.noise-icon').innerText = "🤍"; floodFill(r, c);
+            }
         }
 
         function floodFill(r, c) {
             [[0,1],[0,-1],[1,0],[-1,0], [1,1],[1,-1],[-1,1],[-1,-1]].forEach(([dr, dc]) => {
                 let nr=r+dr, nc=c+dc;
-                if(nr>=0 && nr<currentDiff.rows && nc>=0 && nc<currentDiff.cols && !grid[nr][nc].isCriminal && !grid[nr][nc].revealed) revealCell(nr, nc);
+                if(nr>=0 && nr<currentDiff.rows && nc>=0 && nc<currentDiff.cols && !grid[nr][nc].isCriminal && !grid[nr][nc].revealed) {
+                    if(grid[nr][nc].noise === 0) revealCell(nr, nc); else revealCell(nr, nc);
+                }
             });
         }
 
         function openSafeNeighbors(r, c) {
             [[0,1],[0,-1],[1,0],[-1,0]].forEach(([dr, dc]) => {
                 let nr=r+dr, nc=c+dc;
-                if(nr>=0 && nr<currentDiff.rows && nc>=0 && nc<currentDiff.cols && !grid[nr][nc].revealed && !grid[nr][nc].checked) revealCell(nr, nc, true);
+                if(nr>=0 && nr<currentDiff.rows && nc>=0 && nc<currentDiff.cols && !grid[nr][nc].revealed && !grid[nr][nc].checked) { revealCell(nr, nc, true); }
             });
         }
 
         function updateUI() {
-            let h = ""; for(let i=0; i<3; i++) h += (i < lives ? "❤️" : "💔");
-            document.getElementById('lives').innerHTML = h; scoreEl.innerText = caught;
+            let h = ""; for(let i=0; i<3; i++) h += (i < lives ? "❤️" : "💔"); livesEl.innerHTML = h; scoreEl.innerText = caught;
         }
 
-        resizeGame();
-        initGame();
+        function showToast(msg, color) {
+            toast.innerText = msg; toast.style.display = "block"; toast.style.borderColor = color;
+            setTimeout(() => toast.style.display = "none", 1500);
+        }
+
+        setDifficulty('easy', document.querySelector('.btn-diff.active'));
+        updateTutorial(); 
     </script>
 </body>
 </html>
