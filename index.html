@@ -99,15 +99,7 @@
         .window.revealed { cursor: default; }
         .window.revealed.safe { background-color: #f5f6fa; border-color: #dcdde1; box-shadow: none; }
         
-        /* ⭐ 빈집 스타일 (클릭 가능하도록 cursor 유지) */
-        .window.revealed.empty-house { background-color: #7f8c8d; border-color: #2c3e50; color: #2c3e50; opacity: 0.7; cursor: pointer !important; }
-
-        /* ⭐ 메모 레이어 스타일 */
-        .memo-layer {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.2em; z-index: 5; pointer-events: none;
-        }
+        .window.revealed.empty-house { background-color: #7f8c8d; border-color: #2c3e50; color: #2c3e50; opacity: 0.7; }
 
         .window.revealed.level-1 { background-color: #fff9c4; color: #fbc02d; border-color: #fbc02d; box-shadow: inset 0 0 10px #fff176; }
         .window.revealed.level-2 { background-color: #ffcc80; color: #e65100; border-color: #fb8c00; box-shadow: inset 0 0 10px #ffb74d; font-weight: 900; }
@@ -150,13 +142,7 @@
         .modal-content { background: #fff; color: #333; width: 90%; max-width: 400px; padding: 25px; border-radius: 20px; text-align: center; }
         
         .intro-header { margin-bottom: 20px; }
-        .intro-title {
-            font-family: 'Black Han Sans', sans-serif;
-            font-size: 2rem;
-            color: #f1c40f;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            margin-bottom: 5px;
-        }
+        .intro-title { font-family: 'Black Han Sans', sans-serif; font-size: 2rem; color: #f1c40f; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 5px; }
         .intro-subtitle { font-size: 1.1rem; color: #7f8c8d; font-weight: bold; }
         .hamster-hero { font-size: 6rem; margin: 20px 0; animation: bounce 2s infinite; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
@@ -207,17 +193,16 @@
             <div class="tuto-step" id="step-2">
                 <div class="tuto-desc">소음은 <b>중첩(더하기)</b>됩니다!<br>이게 가장 중요한 단서입니다.</div>
                 <div class="tuto-visual">5 + 1 = <span style="color:#e67e22">6</span> 🔊</div>
-                <div class="tuto-desc">숫자가 <span class="highlight">5 이상</span>이다? 👉 <b>바로 근처(위/옆)에 범인이 있다</b>는 뜻입니다.<br>만약 <b>6</b>이라면? 옆에 한 명(5), 멀리 한 명(1)이 있다는 뜻이죠!</div>
+                <div class="tuto-desc">숫자가 <span class="highlight">5 이상</span>이다? 👉 <b>바로 근처(위/옆)에 범인이 있다</b>는 뜻입니다.</div>
             </div>
             <div class="tuto-step" id="step-3">
-                <div class="tuto-desc"><b>🤍 흰색 창문은 안전지대</b>입니다.<br>소음이 0인 곳은 마음껏 누르세요.</div>
+                <div class="tuto-desc"><b>🤍 흰색 창문은 안전지대</b>입니다.<br>범인을 잡으면 상하좌우는 100% 안전해집니다.</div>
                 <div class="tuto-visual" style="background:white; border:2px solid #eee;">🤍 안전 (0dB)</div>
-                <div class="tuto-desc">범인을 잡으면(검거),<br>그 범인의 <b>상하좌우는 100% 안전</b>해집니다.</div>
             </div>
             <div class="tuto-step" id="step-4">
-                <div class="tuto-desc">자, 이제 출동합시다!<br>하단 버튼으로 모드를 변경하세요.</div>
-                <div class="tuto-visual"><span style="color:#f1c40f">🔍 조사</span> vs <span style="color:#e74c3c">👮 검거</span></div>
-                <div class="tuto-desc">실수로 <span class="highlight">범인</span>을 조사하거나 <span class="highlight">억울한 시민</span>을 잡으면<br><b>하트가 깎입니다!</b> 대신 범인은 검거된 것으로 인정해줍니다.</div>
+                <div class="tuto-desc">특수 임무: <span class="highlight">🏚️정보제한(빈집)</span><br>🚫 표시는 범인이 살지 않는 안전한 빈집입니다.</div>
+                <div class="tuto-visual">🏚️ 🚫 (측정불가)</div>
+                <div class="tuto-desc">하지만 센서가 없어 소음을 알려주지 않습니다!<br>주변 집들의 숫자를 조합해 빈집 너머를 추리하세요! 찍!</div>
             </div>
             <div class="modal-footer">
                 <button class="btn-prev" onclick="prevStep()">◀ 이전</button>
@@ -307,7 +292,7 @@
             master: { rows: 12, cols: 10, criminals: 20, emptyRate: 0 },
             abyss: { rows: 15, cols: 12, criminals: 40, emptyRate: 0 },
             abyss2: { rows: 20, cols: 15, criminals: 70, emptyRate: 0 },
-            empty: { rows: 10, cols: 8, criminals: 13, emptyRate: 0.2 }
+            empty: { rows: 10, cols: 8, criminals: 13, emptyRate: 0.25 }
         };
         let currentDiff = DIFFICULTIES.easy;
         let grid = []; let lives = 3; let caught = 0; let isFirstClick = true; let currentMode = 'investigate'; let gameOver = false;
@@ -350,7 +335,7 @@
                 for(let c=0; c<currentDiff.cols; c++){
                     let cell = document.createElement('div');
                     cell.className = 'window'; cell.dataset.r = r; cell.dataset.c = c;
-                    cell.innerHTML = `<div class="memo-layer"></div><div class="noise-icon"></div><div class="val"></div>`;
+                    cell.innerHTML = `<div class="noise-icon"></div><div class="val"></div>`;
                     cell.onclick = () => handleInput(r, c, cell, 'left');
                     cell.oncontextmenu = (e) => { e.preventDefault(); handleInput(r, c, cell, 'right'); };
                     board.appendChild(cell);
@@ -370,13 +355,12 @@
             for(let r=0; r<currentDiff.rows; r++){
                 let row = [];
                 for(let c=0; c<currentDiff.cols; c++){
-                    row.push({ isCriminal: false, isEmpty: false, noise: 0, revealed: false, checked: false, memoState: 0, el: document.querySelector(`.window[data-r='${r}'][data-c='${c}']`) });
+                    row.push({ isCriminal: false, isEmpty: false, noise: 0, revealed: false, checked: false, el: document.querySelector(`.window[data-r='${r}'][data-c='${c}']`) });
                 }
                 grid.push(row);
             }
-            let placed = 0; let attempts = 0;
-            while(placed < currentDiff.criminals && attempts < 10000) {
-                attempts++;
+            let placed = 0;
+            while(placed < currentDiff.criminals) {
                 let r = Math.floor(Math.random() * currentDiff.rows); let c = Math.floor(Math.random() * currentDiff.cols);
                 if(Math.abs(r - safeR) <= 1 && Math.abs(c - safeC) <= 1) continue;
                 if(grid[r][c].isCriminal) continue;
@@ -388,6 +372,7 @@
                 if(tooClose) continue;
                 grid[r][c].isCriminal = true; placed++;
             }
+            // 빈집 배치: 범인이 아닌 집들 중에서만 선정 (100% 안전 보장)
             if(currentDiff.emptyRate > 0) {
                 for(let r=0; r<currentDiff.rows; r++){
                     for(let c=0; c<currentDiff.cols; c++){
@@ -414,15 +399,6 @@
             if(isFirstClick) { generateMap(r, c); isFirstClick = false; revealCell(r, c); return; }
             
             let cell = grid[r][c];
-
-            // ⭐ 빈집 메모 기능: 이미 공개된 빈집(🚫) 클릭 시 메모 상태 순환
-            if(cell.revealed && cell.isEmpty && inputType === 'left') {
-                const memoIcons = ["", "👹", "⭕"];
-                cell.memoState = (cell.memoState + 1) % memoIcons.length;
-                el.querySelector('.memo-layer').innerText = memoIcons[cell.memoState];
-                return;
-            }
-
             if(cell.revealed || cell.checked) return;
             let action = (inputType === 'right') ? 'arrest' : currentMode;
 
