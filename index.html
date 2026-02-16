@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>층간수사대 M : 심연의 심연</title>
+    <title>층간수사대 M : 정보제한</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700&display=swap');
 
@@ -23,7 +23,6 @@
             display: flex; flex-direction: column; align-items: center;
             min-height: 100vh;
             user-select: none; touch-action: manipulation;
-            /* ⭐ 수정: 내용이 많을 경우 스크롤 허용 */
             overflow-x: hidden;
             overflow-y: auto;
         }
@@ -66,13 +65,15 @@
 
         .btn-diff.abyss2 { border-color: #581845; color: #c70039; font-weight: 900; }
         .btn-diff.abyss2.active { background: #581845; color: #ffc300; border-color: #ff5733; box-shadow: 0 0 20px #c70039; animation: pulse-purple 1.5s infinite; }
-        @keyframes pulse-purple { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        
+        /* ⭐ 빈집모드 버튼 스타일 */
+        .btn-diff.empty-mode { border-color: #95a5a6; color: #bdc3c7; }
+        .btn-diff.empty-mode.active { background: #7f8c8d; color: #fff; border-color: #bdc3c7; box-shadow: 0 0 10px #7f8c8d; }
 
         .status-bar { display: flex; justify-content: center; gap: 20px; font-size: 1rem; font-weight: bold; }
         .score-num { color: #2ecc71; font-size: 1.3rem; }
 
         .game-container {
-            /* ⭐ 수정: 여백 조절 및 중앙 정렬 */
             margin-top: 180px; 
             margin-bottom: 120px;
             flex-grow: 1; display: flex; flex-direction: column;
@@ -98,6 +99,10 @@
         .window:active { transform: scale(0.95); }
         .window.revealed { cursor: default; }
         .window.revealed.safe { background-color: #f5f6fa; border-color: #dcdde1; box-shadow: none; }
+        
+        /* ⭐ 빈집 스타일 */
+        .window.revealed.empty-house { background-color: #7f8c8d; border-color: #2c3e50; color: #2c3e50; opacity: 0.7; }
+
         .window.revealed.level-1 { background-color: #fff9c4; color: #fbc02d; border-color: #fbc02d; box-shadow: inset 0 0 10px #fff176; }
         .window.revealed.level-2 { background-color: #ffcc80; color: #e65100; border-color: #fb8c00; box-shadow: inset 0 0 10px #ffb74d; font-weight: 900; }
         .window.revealed.level-3 { background-color: #ef9a9a; color: #b71c1c; border-color: #c62828; box-shadow: inset 0 0 15px #e57373; animation: pulse-red 1.5s infinite; }
@@ -243,6 +248,7 @@
             <button class="btn-diff master" onclick="setDifficulty('master', this)">최고급</button>
             <button class="btn-diff abyss" onclick="setDifficulty('abyss', this)">💀심연</button>
             <button class="btn-diff abyss2" onclick="setDifficulty('abyss2', this)">♾️심연의심연</button>
+            <button class="btn-diff empty-mode" onclick="setDifficulty('empty', this)">🏚️정보제한</button>
         </div>
         <div class="status-bar">
             <div id="lives">❤️❤️❤️</div>
@@ -289,12 +295,14 @@
         function retryGameVictory() { document.getElementById('victory-modal').style.display = 'none'; initGame(); }
 
         const DIFFICULTIES = { 
-            easy: { rows: 6, cols: 5, criminals: 5 }, 
-            normal: { rows: 8, cols: 6, criminals: 8 }, 
-            hard: { rows: 10, cols: 8, criminals: 13 },
-            master: { rows: 12, cols: 10, criminals: 20 },
-            abyss: { rows: 15, cols: 12, criminals: 40 },
-            abyss2: { rows: 20, cols: 15, criminals: 70 } 
+            easy: { rows: 6, cols: 5, criminals: 5, emptyRate: 0 }, 
+            normal: { rows: 8, cols: 6, criminals: 8, emptyRate: 0 }, 
+            hard: { rows: 10, cols: 8, criminals: 13, emptyRate: 0 },
+            master: { rows: 12, cols: 10, criminals: 20, emptyRate: 0 },
+            abyss: { rows: 15, cols: 12, criminals: 40, emptyRate: 0 },
+            abyss2: { rows: 20, cols: 15, criminals: 70, emptyRate: 0 },
+            // ⭐ 정보제한 모드 설정 (고급 사이즈 + 20% 빈집)
+            empty: { rows: 10, cols: 8, criminals: 13, emptyRate: 0.2 }
         };
         let currentDiff = DIFFICULTIES.easy;
         let grid = []; let lives = 3; let caught = 0; let isFirstClick = true; let currentMode = 'investigate'; let gameOver = false;
@@ -304,24 +312,16 @@
         const totalEl = document.getElementById('total-criminals');
         const toast = document.getElementById('toast');
 
-        // ⭐ 핵심: 화면 크기에 맞춰서 가로/세로 최적의 크기를 찾는 로직
         function handleResize() {
             if (!currentDiff) return;
-            
             const uiPanelHeight = document.getElementById('ui-panel').offsetHeight;
             const controlsHeight = document.getElementById('controls').offsetHeight;
-            const padding = 60; // 상하좌우 여백 확보
-
+            const padding = 60;
             const availableWidth = window.innerWidth - padding;
             const availableHeight = window.innerHeight - uiPanelHeight - controlsHeight - padding;
-
-            // 가로 기준 크기와 세로 기준 크기 중 더 작은 쪽을 선택하여 격자가 화면을 벗어나지 않게 함
             const sizeByWidth = availableWidth / currentDiff.cols;
             const sizeByHeight = availableHeight / currentDiff.rows;
-            
-            // 너무 크거나 너무 작지 않게 조절 (최대 60px)
             const finalSize = Math.min(sizeByWidth, sizeByHeight, 60);
-            
             document.documentElement.style.setProperty('--cell-size', finalSize + 'px');
             document.documentElement.style.setProperty('--cols', currentDiff.cols);
         }
@@ -332,7 +332,7 @@
             document.querySelectorAll('.btn-diff').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentDiff = DIFFICULTIES[level];
-            handleResize(); // 난이도 변경 시 크기 즉시 재계산
+            handleResize();
             initGame();
         }
 
@@ -351,7 +351,7 @@
                     board.appendChild(cell);
                 }
             }
-            handleResize(); // 게임판 생성 후 다시 한번 정렬
+            handleResize();
         }
 
         function setMode(mode) {
@@ -365,7 +365,8 @@
             for(let r=0; r<currentDiff.rows; r++){
                 let row = [];
                 for(let c=0; c<currentDiff.cols; c++){
-                    row.push({ isCriminal: false, noise: 0, revealed: false, checked: false, el: document.querySelector(`.window[data-r='${r}'][data-c='${c}']`) });
+                    // ⭐ isEmpty 속성 추가
+                    row.push({ isCriminal: false, isEmpty: false, noise: 0, revealed: false, checked: false, el: document.querySelector(`.window[data-r='${r}'][data-c='${c}']`) });
                 }
                 grid.push(row);
             }
@@ -383,6 +384,18 @@
                 if(tooClose) continue;
                 grid[r][c].isCriminal = true; placed++;
             }
+
+            // ⭐ 빈집 배치 (범인이 아닌 곳 중 랜덤)
+            if(currentDiff.emptyRate > 0) {
+                for(let r=0; r<currentDiff.rows; r++){
+                    for(let c=0; c<currentDiff.cols; c++){
+                        if(!grid[r][c].isCriminal && Math.random() < currentDiff.emptyRate && (r !== safeR || c !== safeC)) {
+                            grid[r][c].isEmpty = true;
+                        }
+                    }
+                }
+            }
+
             const dirs = [{dr:1, dc:0}, {dr:0, dc:-1}, {dr:0, dc:1}];
             for(let r=0; r<currentDiff.rows; r++){
                 for(let c=0; c<currentDiff.cols; c++){
@@ -425,6 +438,14 @@
         function revealCell(r, c, safeBonus = false) {
             let cell = grid[r][c]; if(cell.revealed) return;
             cell.revealed = true; cell.el.classList.add('revealed');
+            
+            // ⭐ 빈집 처리 (측정 불가)
+            if(cell.isEmpty) {
+                cell.el.classList.add('empty-house');
+                cell.el.querySelector('.noise-icon').innerText = "🚫";
+                return; // 숫자 표시 및 연쇄 오픈 중단
+            }
+
             if(safeBonus) cell.el.classList.add('safe-open');
             if(cell.noise > 0) {
                 let level = 1; let icon = "🔈";
