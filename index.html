@@ -70,7 +70,6 @@
         .btn-diff.empty-mode { border-color: #95a5a6; color: #bdc3c7; }
         .btn-diff.empty-mode.active { background: #7f8c8d; color: #fff; border-color: #bdc3c7; box-shadow: 0 0 10px #7f8c8d; }
 
-        /* ⭐ 히트맵 모드 버튼 스타일 */
         .btn-diff.heatmap-mode { border-color: #e67e22; color: #f39c12; }
         .btn-diff.heatmap-mode.active { background: #e67e22; color: #fff; border-color: #fff; box-shadow: 0 0 10px #e67e22; }
 
@@ -104,10 +103,8 @@
         .window.revealed { cursor: default; }
         .window.revealed.safe { background-color: #f5f6fa; border-color: #dcdde1; box-shadow: none; }
         
-        /* 빈집 스타일 */
         .window.revealed.empty-house { background-color: #7f8c8d; border-color: #2c3e50; color: #2c3e50; opacity: 0.7; }
 
-        /* ⭐ 히트맵 전용 색상 */
         .window.revealed.h-0 { background-color: #2980b9 !important; border-color: #1c5982; }
         .window.revealed.h-1 { background-color: #f1c40f !important; border-color: #c29d0b; }
         .window.revealed.h-2 { background-color: #e67e22 !important; border-color: #b35f15; }
@@ -119,7 +116,7 @@
         @keyframes pulse-red { 0% { box-shadow: inset 0 0 5px #e57373; } 50% { box-shadow: inset 0 0 20px #e57373; } 100% { box-shadow: inset 0 0 5px #e57373; } }
 
         .noise-icon { font-size: 0.8em; margin-bottom: 2px; }
-        .window.arrested { background-color: #2c3e50 !important; color: white !important; border-color: #bdc3c7; }
+        .window.arrested { background-color: #2c3e50 !important; color: white !important; border-color: #3498db; }
         .window.arrested .noise-icon { content: "👮‍♂️"; font-size: 1.5em; }
         .window.angry { background-color: #e74c3c !important; color: white !important; animation: shake 0.4s; }
         .window.busted { background-color: #c0392b !important; color: white !important; border-color: #e74c3c; animation: shake 0.4s; }
@@ -218,15 +215,19 @@
                 <div class="tuto-desc">실수로 <span class="highlight">범인</span>을 조사하거나 <span class="highlight">억울한 시민</span>을 잡으면<br><b>하트가 깎입니다!</b> 대신 범인은 검거된 것으로 인정해줍니다.</div>
             </div>
             <div class="tuto-step" id="step-5">
+                <div class="tuto-desc">특수 임무: <span class="highlight">🏚️정보제한(빈집)</span><br>🚫 표시는 범인이 살지 않는 **안전한 빈집**입니다.</div>
+                <div class="tuto-visual">🏚️ 🚫 (안전 구역)</div>
+                <div class="tuto-desc">하지만 센서가 없어 소음 수치를 직접 보여주지 않습니다!<br>주변 집들의 숫자를 조합해 빈집 너머를 역추론하세요!</div>
+            </div>
+            <div class="tuto-step" id="step-6">
                 <div class="tuto-desc">특수 임무: <span class="highlight">🌡️열감지수사(히트맵)</span><br>숫자 대신 **소음의 온도**를 확인하는 고도 수사 기법입니다.</div>
-                
                 <div class="tuto-visual" style="font-size: 0.9rem; text-align: left; background: #fff; padding: 10px;">
                     <div style="background:#2980b9; color:white; padding:4px; margin:2px;">🟦 파랑: 0dB (완전 고요)</div>
                     <div style="background:#f1c40f; color:black; padding:4px; margin:2px;">🟨 노랑: 1~4dB (멀리 누군가 있음)</div>
                     <div style="background:#e67e22; color:white; padding:4px; margin:2px;">🟧 주황: 5~9dB (옆집에 범인!)</div>
                     <div style="background:#c0392b; color:white; padding:4px; margin:2px;">🟥 빨강: 10dB↑ (포위 당함!)</div>
                 </div>
-                <div class="tuto-desc">색깔만 보고 범인을 특정하세요! 찍!</div>
+                <div class="tuto-desc">색깔의 농도만으로 범인을 특정하세요! 찍!</div>
             </div>
             <div class="modal-footer">
                 <button class="btn-prev" onclick="prevStep()">◀ 이전</button>
@@ -289,7 +290,7 @@
 
     <script>
         let currentStep = 0;
-        const totalSteps = 6; // ⭐ 튜토리얼 단계 확장
+        const totalSteps = 7; // ⭐ 튜토리얼 7단계로 확장
 
         function updateTutorial() {
             for(let i=0; i<totalSteps; i++) { 
@@ -318,7 +319,7 @@
             abyss: { rows: 15, cols: 12, criminals: 40, emptyRate: 0, isHeat: false },
             abyss2: { rows: 20, cols: 15, criminals: 70, emptyRate: 0, isHeat: false },
             empty: { rows: 10, cols: 8, criminals: 13, emptyRate: 0.25, isHeat: false },
-            heatmap: { rows: 10, cols: 8, criminals: 14, emptyRate: 0, isHeat: true } // ⭐ 히트맵 난이도 추가
+            heatmap: { rows: 10, cols: 8, criminals: 14, emptyRate: 0, isHeat: true } 
         };
         let currentDiff = DIFFICULTIES.easy;
         let grid = []; let lives = 3; let caught = 0; let isFirstClick = true; let currentMode = 'investigate'; let gameOver = false;
@@ -390,7 +391,7 @@
                 if(grid[r][c].isCriminal) continue;
                 grid[r][c].isCriminal = true; placed++;
             }
-            // ⭐ 빈집 배치: 범인이 아닌 집들 중에서만 선정 (100% 안전 보장)
+            // ⭐ 빈집 배치: 범인이 아닌 집들 중에서만 선정 (무조건 범인 없음 규칙 반영)
             if(currentDiff.emptyRate > 0) {
                 for(let r=0; r<currentDiff.rows; r++){
                     for(let c=0; c<currentDiff.cols; c++){
@@ -417,22 +418,25 @@
             if(isFirstClick) { generateMap(r, c); isFirstClick = false; revealCell(r, c); return; }
             
             let cell = grid[r][c];
-            if(cell.revealed || cell.checked) return; // ⭐ 빈집 메모 기능 삭제됨
+            if(cell.revealed || cell.checked) return;
             let action = (inputType === 'right') ? 'arrest' : currentMode;
 
             if(action === 'investigate') {
                 if(cell.isCriminal) {
                     lives--; caught++; updateUI();
-                    cell.checked = true; el.classList.add('busted'); openSafeNeighbors(r, c);
+                    cell.checked = true; el.classList.add('busted'); el.querySelector('.noise-icon').innerText = "👹"; // ⭐ 히트맵에서도 이모지 추가
+                    openSafeNeighbors(r, c);
                     if(lives <= 0) { gameOver = true; showGameOver("체력이 모두 소진되었습니다... 💔"); }
                     else { showToast("범인 발견! (하트 -1)", "red"); if(caught === currentDiff.criminals) setTimeout(() => { gameOver = true; showVictory(); }, 500); }
                 } else { revealCell(r, c); }
             } else {
                 if(cell.isCriminal) {
-                    cell.checked = true; el.classList.add('arrested'); caught++; updateUI(); openSafeNeighbors(r, c);
+                    cell.checked = true; el.classList.add('arrested'); el.querySelector('.noise-icon').innerText = "👮‍♂️"; // ⭐ 히트맵에서도 이모지 추가
+                    caught++; updateUI(); openSafeNeighbors(r, c);
                     if(caught === currentDiff.criminals) { gameOver = true; showVictory(); } else { showToast("검거 성공!", "#3498db"); }
                 } else {
                     lives--; updateUI(); el.classList.add('angry');
+                    showToast(`억울해요! (${cell.noise}dB)`, "red");
                     setTimeout(() => { el.classList.remove('angry'); revealCell(r, c); }, 600);
                     if(lives <= 0) { gameOver = true; showGameOver("민원 폭주로 쫓겨났습니다! 💔"); }
                 }
@@ -445,15 +449,13 @@
             let el = document.querySelector(`.window[data-r='${r}'][data-c='${c}']`);
             el.classList.add('revealed');
             
-            if(cell.isEmpty) {
-                el.classList.add('empty-house'); el.querySelector('.noise-icon').innerText = "🚫";
-                return; 
-            }
+            if(cell.isEmpty) { el.classList.add('empty-house'); el.querySelector('.noise-icon').innerText = "🚫"; return; }
 
-            // ⭐ 히트맵 모드 렌더링
+            // ⭐ 히트맵 모드 처리
             if(currentDiff.isHeat) {
                 let hLevel = cell.noise >= 10 ? 3 : (cell.noise >= 5 ? 2 : (cell.noise > 0 ? 1 : 0));
                 el.classList.add(`h-${hLevel}`);
+                // 범인을 히트맵에서 실수나 조사로 열었을 때를 대비해 이모지 처리 (보통 handleInput에서 수행하지만 안전장치)
                 if(hLevel === 0) floodFill(r, c);
                 return;
             }
@@ -477,7 +479,16 @@
         function openSafeNeighbors(r, c) {
             [[0,1],[0,-1],[1,0],[-1,0]].forEach(([dr, dc]) => {
                 let nr=r+dr, nc=c+dc;
-                if(nr>=0 && nr<currentDiff.rows && nc>=0 && nc<currentDiff.cols && !grid[nr][nc].revealed && !grid[nr][nc].checked) { revealCell(nr, nc); }
+                if(nr>=0 && nr<currentDiff.rows && nc>=0 && nc<currentDiff.cols && !grid[nr][nc].revealed && !grid[nr][nc].checked) {
+                    // 범인이라면 이모지 표시만 하고 리턴
+                    if(grid[nr][nc].isCriminal) {
+                        let targetEl = document.querySelector(`.window[data-r='${nr}'][data-c='${nc}']`);
+                        targetEl.classList.add('revealed', 'busted');
+                        targetEl.querySelector('.noise-icon').innerText = "👹";
+                    } else {
+                        revealCell(nr, nc);
+                    }
+                }
             });
         }
 
