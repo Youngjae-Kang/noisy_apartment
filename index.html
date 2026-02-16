@@ -22,7 +22,10 @@
             margin: 0; padding: 0;
             display: flex; flex-direction: column; align-items: center;
             min-height: 100vh;
-            user-select: none; touch-action: manipulation; overflow: hidden;
+            user-select: none; touch-action: manipulation;
+            /* ⭐ 수정: 내용이 많을 경우 스크롤 허용 */
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         .ui-panel {
@@ -58,9 +61,9 @@
         .btn-diff.master.active { background: #9b59b6; color: #fff; border-color: #8e44ad; }
 
         .btn-diff.abyss { border-color: #ff0000; color: #ff9999; }
-        .btn-diff.abyss.active { background: #000; color: #ff0000; border-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
+        .btn-diff.abyss.active { background: #000; color: #ff0000; border-color: #ff0000; box-shadow: 0 0 15px #ff0000; animation: blink-red 1s infinite; }
+        @keyframes blink-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
 
-        /* ⭐ 심연의 심연 버튼 스타일 (불타는 보라색) */
         .btn-diff.abyss2 { border-color: #581845; color: #c70039; font-weight: 900; }
         .btn-diff.abyss2.active { background: #581845; color: #ffc300; border-color: #ff5733; box-shadow: 0 0 20px #c70039; animation: pulse-purple 1.5s infinite; }
         @keyframes pulse-purple { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
@@ -69,10 +72,12 @@
         .score-num { color: #2ecc71; font-size: 1.3rem; }
 
         .game-container {
-            margin-top: 190px; 
+            /* ⭐ 수정: 여백 조절 및 중앙 정렬 */
+            margin-top: 180px; 
+            margin-bottom: 120px;
             flex-grow: 1; display: flex; flex-direction: column;
-            align-items: center; justify-content: flex-start; width: 100%; 
-            overflow-y: auto; padding-bottom: 160px; padding-top: 20px;
+            align-items: center; justify-content: center; width: 100%; 
+            padding: 10px; box-sizing: border-box;
         }
 
         .building-container {
@@ -226,7 +231,7 @@
         </div>
     </div>
 
-    <div class="ui-panel">
+    <div class="ui-panel" id="ui-panel">
         <div class="header-row">
             <h1>🏢 층간수사대 M</h1>
             <button class="btn-restart-big" onclick="initGame()">🔄 다시 시작</button>
@@ -253,7 +258,7 @@
         <div class="pc-hint">(PC: 우클릭 = 즉시 검거)</div>
     </div>
 
-    <div class="controls">
+    <div class="controls" id="controls">
         <button id="btn-mode-investigate" class="mode-btn btn-investigate active" onclick="setMode('investigate')">🔍 조사하기</button>
         <button id="btn-mode-arrest" class="mode-btn btn-arrest" onclick="setMode('arrest')">👮 검거하기</button>
     </div>
@@ -289,33 +294,47 @@
             hard: { rows: 10, cols: 8, criminals: 13 },
             master: { rows: 12, cols: 10, criminals: 20 },
             abyss: { rows: 15, cols: 12, criminals: 40 },
-            abyss2: { rows: 20, cols: 15, criminals: 70 } // ⭐ 심연의 심연 설정 추가
+            abyss2: { rows: 20, cols: 15, criminals: 70 } 
         };
         let currentDiff = DIFFICULTIES.easy;
         let grid = []; let lives = 3; let caught = 0; let isFirstClick = true; let currentMode = 'investigate'; let gameOver = false;
 
         const board = document.getElementById('game-board');
-        const livesEl = document.getElementById('lives');
         const scoreEl = document.getElementById('score');
         const totalEl = document.getElementById('total-criminals');
         const toast = document.getElementById('toast');
+
+        // ⭐ 핵심: 화면 크기에 맞춰서 가로/세로 최적의 크기를 찾는 로직
+        function handleResize() {
+            if (!currentDiff) return;
+            
+            const uiPanelHeight = document.getElementById('ui-panel').offsetHeight;
+            const controlsHeight = document.getElementById('controls').offsetHeight;
+            const padding = 60; // 상하좌우 여백 확보
+
+            const availableWidth = window.innerWidth - padding;
+            const availableHeight = window.innerHeight - uiPanelHeight - controlsHeight - padding;
+
+            // 가로 기준 크기와 세로 기준 크기 중 더 작은 쪽을 선택하여 격자가 화면을 벗어나지 않게 함
+            const sizeByWidth = availableWidth / currentDiff.cols;
+            const sizeByHeight = availableHeight / currentDiff.rows;
+            
+            // 너무 크거나 너무 작지 않게 조절 (최대 60px)
+            const finalSize = Math.min(sizeByWidth, sizeByHeight, 60);
+            
+            document.documentElement.style.setProperty('--cell-size', finalSize + 'px');
+            document.documentElement.style.setProperty('--cols', currentDiff.cols);
+        }
+
+        window.addEventListener('resize', handleResize);
 
         function setDifficulty(level, btn) {
             document.querySelectorAll('.btn-diff').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentDiff = DIFFICULTIES[level];
-            document.documentElement.style.setProperty('--cols', currentDiff.cols);
-            let containerWidth = Math.min(window.innerWidth, 500) - 40;
-            let size = containerWidth / currentDiff.cols;
-            document.documentElement.style.setProperty('--cell-size', size + 'px');
+            handleResize(); // 난이도 변경 시 크기 즉시 재계산
             initGame();
         }
-
-        window.addEventListener('resize', () => {
-             let containerWidth = Math.min(window.innerWidth, 500) - 40;
-             let size = containerWidth / currentDiff.cols;
-             document.documentElement.style.setProperty('--cell-size', size + 'px');
-        });
 
         function initGame() {
             grid = []; lives = 3; caught = 0; isFirstClick = true; gameOver = false;
@@ -332,6 +351,7 @@
                     board.appendChild(cell);
                 }
             }
+            handleResize(); // 게임판 생성 후 다시 한번 정렬
         }
 
         function setMode(mode) {
@@ -350,7 +370,7 @@
                 grid.push(row);
             }
             let placed = 0; let attempts = 0;
-            while(placed < currentDiff.criminals && attempts < 10000) { // 맵이 커진 만큼 시도 횟수 증가
+            while(placed < currentDiff.criminals && attempts < 10000) {
                 attempts++;
                 let r = Math.floor(Math.random() * currentDiff.rows); let c = Math.floor(Math.random() * currentDiff.cols);
                 if(Math.abs(r - safeR) <= 1 && Math.abs(c - safeC) <= 1) continue;
@@ -387,17 +407,17 @@
                     lives--; caught++; updateUI();
                     cell.checked = true; el.classList.add('busted'); openSafeNeighbors(r, c);
                     if(lives <= 0) { gameOver = true; showGameOver("체력이 모두 소진되었습니다... 💔"); }
-                    else { showToast("범인에게 들켰습니다! (하트 -1)", "red"); if(caught === currentDiff.criminals) setTimeout(() => { gameOver = true; showVictory(); }, 500); }
+                    else { showToast("범인 발견! (하트 -1)", "red"); if(caught === currentDiff.criminals) setTimeout(() => { gameOver = true; showVictory(); }, 500); }
                 } else { revealCell(r, c); }
             } else {
                 if(cell.isCriminal) {
                     cell.checked = true; el.classList.add('arrested'); el.querySelector('.noise-icon').innerText = "👮‍♂️"; caught++; updateUI(); openSafeNeighbors(r, c);
                     if(caught === currentDiff.criminals) { gameOver = true; showVictory(); } else { showToast("검거 성공!", "#3498db"); }
                 } else {
-                    lives--; updateUI(); el.classList.add('angry'); el.querySelector('.noise-icon').innerText = "🤬";
+                    lives--; updateUI(); el.classList.add('angry');
                     showToast(`억울해요! (${cell.noise}dB)`, "red");
                     setTimeout(() => { el.classList.remove('angry'); revealCell(r, c); }, 600);
-                    if(lives <= 0) { gameOver = true; showGameOver("민원 폭주로 쫓겨났습니다... 💔"); }
+                    if(lives <= 0) { gameOver = true; showGameOver("민원 폭주로 쫓겨났습니다! 💔"); }
                 }
             }
         }
@@ -418,9 +438,7 @@
         function floodFill(r, c) {
             [[0,1],[0,-1],[1,0],[-1,0], [1,1],[1,-1],[-1,1],[-1,-1]].forEach(([dr, dc]) => {
                 let nr=r+dr, nc=c+dc;
-                if(nr>=0 && nr<currentDiff.rows && nc>=0 && nc<currentDiff.cols && !grid[nr][nc].isCriminal && !grid[nr][nc].revealed) {
-                    if(grid[nr][nc].noise === 0) revealCell(nr, nc); else revealCell(nr, nc);
-                }
+                if(nr>=0 && nr<currentDiff.rows && nc>=0 && nc<currentDiff.cols && !grid[nr][nc].isCriminal && !grid[nr][nc].revealed) revealCell(nr, nc);
             });
         }
 
@@ -432,7 +450,8 @@
         }
 
         function updateUI() {
-            let h = ""; for(let i=0; i<3; i++) h += (i < lives ? "❤️" : "💔"); livesEl.innerHTML = h; scoreEl.innerText = caught;
+            let h = ""; for(let i=0; i<3; i++) h += (i < lives ? "❤️" : "💔");
+            document.getElementById('lives').innerHTML = h; scoreEl.innerText = caught;
         }
 
         function showToast(msg, color) {
