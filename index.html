@@ -33,14 +33,8 @@
             position: fixed; top: 0; z-index: 100; backdrop-filter: blur(5px);
         }
 
-        .header-row {
-            display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 10px;
-        }
-
-        h1 {
-            font-family: 'Black Han Sans', sans-serif; color: #f1c40f;
-            font-size: 1.6rem; margin: 0; text-shadow: 2px 2px 0 #000;
-        }
+        .header-row { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 10px; }
+        h1 { font-family: 'Black Han Sans', sans-serif; color: #f1c40f; font-size: 1.6rem; margin: 0; text-shadow: 2px 2px 0 #000; }
 
         .btn-restart-big {
             background: #e74c3c; color: white; border: none; border-radius: 8px;
@@ -58,11 +52,9 @@
         
         .btn-diff.master { border-color: #9b59b6; color: #d7bde2; }
         .btn-diff.master.active { background: #9b59b6; color: #fff; border-color: #8e44ad; }
-
         .btn-diff.abyss { border-color: #ff0000; color: #ff9999; }
         .btn-diff.abyss.active { background: #000; color: #ff0000; border-color: #ff0000; box-shadow: 0 0 15px #ff0000; animation: blink-red 1s infinite; }
         @keyframes blink-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-
         .btn-diff.abyss2 { border-color: #581845; color: #c70039; font-weight: 900; }
         .btn-diff.abyss2.active { background: #581845; color: #ffc300; border-color: #ff5733; box-shadow: 0 0 20px #c70039; animation: pulse-purple 1.5s infinite; }
         @keyframes pulse-purple { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
@@ -75,29 +67,12 @@
         .status-bar { display: flex; justify-content: center; gap: 20px; font-size: 1rem; font-weight: bold; }
         .score-num { color: #2ecc71; font-size: 1.3rem; }
 
-        .game-container {
-            margin-top: 180px; 
-            margin-bottom: 120px;
-            flex-grow: 1; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; width: 100%; 
-            padding: 10px; box-sizing: border-box;
-        }
-
-        .building-container {
-            background-color: #34495e; padding: 15px; border-radius: 8px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6); border: 4px solid #1a252f; position: relative;
-        }
+        .game-container { margin-top: 180px; margin-bottom: 120px; flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; padding: 10px; box-sizing: border-box; }
+        .building-container { background-color: #34495e; padding: 15px; border-radius: 8px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); border: 4px solid #1a252f; position: relative; }
         .roof { position: absolute; top: -15px; left: -5px; right: -5px; height: 15px; background-color: #1a1a1a; border-radius: 5px 5px 0 0; }
-
         #game-board { display: grid; grid-template-columns: repeat(var(--cols), var(--cell-size)); gap: 5px; }
 
-        .window {
-            width: var(--cell-size); height: var(--cell-size);
-            background-color: #111; border: 2px solid #000; border-bottom-width: 4px; border-radius: 4px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-size: calc(var(--cell-size) * 0.45); font-weight: bold; 
-            cursor: pointer; position: relative; transition: transform 0.1s;
-        }
+        .window { width: var(--cell-size); height: var(--cell-size); background-color: #111; border: 2px solid #000; border-bottom-width: 4px; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: calc(var(--cell-size) * 0.45); font-weight: bold; cursor: pointer; position: relative; transition: transform 0.1s; }
         .window:active { transform: scale(0.95); }
         .window.revealed { cursor: default; }
         .window.revealed.safe { background-color: #f5f6fa; border-color: #dcdde1; box-shadow: none; }
@@ -107,7 +82,10 @@
         .window.revealed.h-0 { background-color: #2980b9 !important; border-color: #1c5982; }
         .window.revealed.h-1 { background-color: #f1c40f !important; border-color: #c29d0b; }
         .window.revealed.h-2 { background-color: #e67e22 !important; border-color: #b35f15; }
-        .window.revealed.h-3 { background-color: #c0392b !important; border-color: #912b20; animation: pulse-red 1.5s infinite; }
+        .window.revealed.h-3 { background-color: #c0392b !important; border-color: #912b20; }
+        /* ⭐ 15dB 이상: 심연의 보라색 */
+        .window.revealed.h-4 { background-color: #4b0082 !important; border-color: #2e004d; animation: pulse-purple-heat 1.5s infinite; }
+        @keyframes pulse-purple-heat { 0% { box-shadow: inset 0 0 5px #7b00ff; } 50% { box-shadow: inset 0 0 20px #7b00ff; } 100% { box-shadow: inset 0 0 5px #7b00ff; } }
 
         .window.revealed.level-1 { background-color: #fff9c4; color: #fbc02d; border-color: #fbc02d; box-shadow: inset 0 0 10px #fff176; }
         .window.revealed.level-2 { background-color: #ffcc80; color: #e65100; border-color: #fb8c00; box-shadow: inset 0 0 10px #ffb74d; font-weight: 900; }
@@ -124,17 +102,8 @@
         .window.safe-open { animation: flashSafe 0.5s; background-color: #dff9fb; }
         @keyframes flashSafe { 0% { background-color: #2980b9; } 100% { background-color: #dff9fb; } }
 
-        .controls {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            display: flex; justify-content: center; gap: 15px; z-index: 100;
-            padding-bottom: 20px; padding-top: 20px;
-            background: linear-gradient(to top, rgba(44, 62, 80, 1) 40%, rgba(44, 62, 80, 0));
-        }
-        .mode-btn {
-            padding: 14px 28px; border-radius: 35px; border: none;
-            font-family: 'Black Han Sans'; font-size: 1.2rem; color: white;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.5); transition: all 0.2s; opacity: 0.5; transform: scale(0.95);
-        }
+        .controls { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: center; gap: 15px; z-index: 100; padding-bottom: 20px; padding-top: 20px; background: linear-gradient(to top, rgba(44, 62, 80, 1) 40%, rgba(44, 62, 80, 0)); }
+        .mode-btn { padding: 14px 28px; border-radius: 35px; border: none; font-family: 'Black Han Sans'; font-size: 1.2rem; color: white; box-shadow: 0 4px 0 rgba(0,0,0,0.5); transition: all 0.2s; opacity: 0.5; transform: scale(0.95); }
         .mode-btn.active { opacity: 1; transform: scale(1.1); box-shadow: 0 0 20px rgba(255,255,255,0.4); z-index: 10; border: 2px solid white; }
         .btn-investigate { background-color: #f1c40f; color: #333; }
         .btn-arrest { background-color: #e74c3c; }
@@ -143,7 +112,6 @@
         .modal-content { background: #fff; color: #333; width: 90%; max-width: 400px; padding: 25px; border-radius: 20px; text-align: center; max-height: 85vh; overflow-y: auto; }
         .intro-header { margin-bottom: 20px; }
         .intro-title { font-family: 'Black Han Sans', sans-serif; font-size: 2rem; color: #f1c40f; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 5px; }
-        .intro-subtitle { font-size: 1.1rem; color: #7f8c8d; font-weight: bold; }
         .hamster-hero { font-size: 6rem; margin: 20px 0; animation: bounce 2s infinite; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
@@ -158,7 +126,6 @@
         .modal-footer { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
         .btn-next { background: #2c3e50; color: white; padding: 10px 24px; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; }
         .btn-prev { background: #95a5a6; color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; }
-        
         .pc-hint { font-size: 0.8rem; color: #aaa; margin-top: 5px; }
     </style>
 </head>
@@ -202,14 +169,15 @@
                 <div class="tuto-desc">하지만 센서가 없어 소음 수치를 직접 보여주지 않습니다!<br>주변 집들의 숫자를 조합해 빈집 너머를 역추론하세요!</div>
             </div>
             <div class="tuto-step" id="step-6">
-                <div class="tuto-desc">특수 임무: <span class="highlight">🌡️열감지수사(히트맵)</span><br>숫자 대신 **소음의 농도**를 확인하는 고도 수사 기법입니다.</div>
-                <div class="tuto-visual" style="font-size: 0.9rem; text-align: left; background: #fff; padding: 10px;">
-                    <div style="background:#2980b9; color:white; padding:4px; margin:2px;">🟦 파랑: 0dB (완전 고요)</div>
-                    <div style="background:#f1c40f; color:black; padding:4px; margin:2px;">🟨 노랑: 1~4dB (멀리 누군가 있음)</div>
-                    <div style="background:#e67e22; color:white; padding:4px; margin:2px;">🟧 주황: 5~9dB (옆집 범인!)</div>
-                    <div style="background:#c0392b; color:white; padding:4px; margin:2px;">🟥 빨강: 10dB↑ (포위 당함!)</div>
+                <div class="tuto-desc">특수 임무: <span class="highlight">🌡️열감지수사(히트맵)</span><br>숫자 대신 **소음의 온도**를 확인하는 고도 수사 기법입니다.</div>
+                <div class="tuto-visual" style="font-size: 0.8rem; text-align: left; background: #fff; padding: 10px;">
+                    <div style="background:#2980b9; color:white; padding:4px; margin:2px;">🟦 파랑: 0dB (안전)</div>
+                    <div style="background:#f1c40f; color:black; padding:4px; margin:2px;">🟨 노랑: 1~4dB (원거리)</div>
+                    <div style="background:#e67e22; color:white; padding:4px; margin:2px;">🟧 주황: 5~9dB (근접!)</div>
+                    <div style="background:#c0392b; color:white; padding:4px; margin:2px;">🟥 빨강: 10~14dB (위험!)</div>
+                    <div style="background:#4b0082; color:white; padding:4px; margin:2px;">🟪 보라: 15dB↑ (심연의 농도!)</div>
                 </div>
-                <div class="tuto-desc">색깔만 보고 범인을 특정하세요! 범인을 검거하면 색깔 위에 👮 표시가 나타납니다! 찍!</div>
+                <div class="tuto-desc">색깔만 보고 범인을 특정하세요! 범인을 검거하면 👮 표시가 나타납니다! 찍!</div>
             </div>
             <div class="modal-footer">
                 <button class="btn-prev" onclick="prevStep()">◀ 이전</button>
@@ -230,7 +198,7 @@
         <div class="modal-content">
             <h2 style="color: #27ae60; font-family: 'Black Han Sans';">🎉 작전 성공!</h2>
             <div style="margin: 20px 0; color: #2ecc71; font-weight: bold;">모든 범인을 검거했습니다! 😎찍!</div>
-            <button class="btn-restart-big" style="background:#2ecc71;" onclick="retryGameVictory()">🏆 다시 시작</button>
+            <button class="btn-restart-big" style="background:#2ecc71;" onclick="retryGameVictory()">🏆 다시 하기</button>
         </div>
     </div>
 
@@ -295,16 +263,20 @@
             heatmap: { rows: 10, cols: 8, criminals: 14, emptyRate: 0, isHeat: true } 
         };
         let currentDiff = DIFFICULTIES.easy;
-        let grid = [], lives = 3, caught = 0, isFirstClick = true, currentMode = 'investigate', gameOver = false;
+        let grid = []; let lives = 3; let caught = 0; let isFirstClick = true; let currentMode = 'investigate'; let gameOver = false;
 
         const board = document.getElementById('game-board');
         const scoreEl = document.getElementById('score');
+        const totalEl = document.getElementById('total-criminals');
+        const toast = document.getElementById('toast');
 
         function handleResize() {
             if (!currentDiff) return;
             const uiPanelHeight = document.getElementById('ui-panel').offsetHeight;
             const controlsHeight = document.getElementById('controls').offsetHeight;
-            const finalSize = Math.min((window.innerWidth - 60) / currentDiff.cols, (window.innerHeight - uiPanelHeight - controlsHeight - 60) / currentDiff.rows, 60);
+            const availableWidth = window.innerWidth - 60;
+            const availableHeight = window.innerHeight - uiPanelHeight - controlsHeight - 60;
+            const finalSize = Math.min(availableWidth / currentDiff.cols, availableHeight / currentDiff.rows, 60);
             document.documentElement.style.setProperty('--cell-size', Math.floor(finalSize) + 'px');
             document.documentElement.style.setProperty('--cols', currentDiff.cols);
         }
@@ -319,7 +291,8 @@
 
         function initGame() {
             grid = []; lives = 3; caught = 0; isFirstClick = true; gameOver = false;
-            updateUI(); document.getElementById('total-criminals').innerText = "/ " + currentDiff.criminals;
+            setMode('investigate'); updateUI();
+            totalEl.innerText = "/ " + currentDiff.criminals;
             board.innerHTML = '';
             for(let r=0; r<currentDiff.rows; r++){
                 for(let c=0; c<currentDiff.cols; c++){
@@ -349,29 +322,48 @@
             }
             let placed = 0;
             while(placed < currentDiff.criminals) {
-                let r = Math.floor(Math.random() * currentDiff.rows), c = Math.floor(Math.random() * currentDiff.cols);
+                let r = Math.floor(Math.random() * currentDiff.rows); let c = Math.floor(Math.random() * currentDiff.cols);
                 if(Math.abs(r - safeR) <= 1 && Math.abs(c - safeC) <= 1) continue;
                 if(grid[r][c].isCriminal) continue;
-                
-                // ⭐ 범인 상하좌우 인접 금지 (대각선은 허용)
                 let tooClose = false;
-                [[0,1],[0,-1],[1,0],[-1,0]].forEach(([dr, dc]) => {
-                    let nr=r+dr, nc=c+dc;
-                    if(nr>=0 && nr<currentDiff.rows && nc>=0 && nc<currentDiff.cols && grid[nr][nc].isCriminal) tooClose = true;
-                });
+                for(let dr=-1; dr<=1; dr++) {
+                    for(let dc=-1; dc<=1; dc++) {
+                        let nr=r+dr, nc=c+dc;
+                        if(nr>=0 && nr<currentDiff.rows && nc>=0 && nc<currentDiff.cols && grid[nr][nc].isCriminal) tooClose = true;
+                    }
+                }
                 if(tooClose) continue;
-                
                 grid[r][c].isCriminal = true; placed++;
             }
+
+            // ⭐ 정보제한모드: 분산 배치 로직 추가
             if(currentDiff.emptyRate > 0) {
-                for(let r=0; r<currentDiff.rows; r++)
-                    for(let c=0; c<currentDiff.cols; c++)
-                        if(!grid[r][c].isCriminal && Math.random() < currentDiff.emptyRate && (r !== safeR || c !== safeC)) grid[r][c].isEmpty = true;
+                for(let r=0; r<currentDiff.rows; r++){
+                    for(let c=0; c<currentDiff.cols; c++){
+                        if(!grid[r][c].isCriminal && (r !== safeR || c !== safeC)) {
+                            // 주변 빈집 개수 확인 (뭉침 방지)
+                            let emptyNeighbors = 0;
+                            [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr, dc]) => {
+                                let nr = r + dr, nc = c + dc;
+                                if(nr >= 0 && nr < currentDiff.rows && nc >= 0 && nc < currentDiff.cols && grid[nr][nc].isEmpty) emptyNeighbors++;
+                            });
+
+                            if(emptyNeighbors < 2 && Math.random() < currentDiff.emptyRate) {
+                                grid[r][c].isEmpty = true;
+                            }
+                        }
+                    }
+                }
             }
+
             const dirs = [{dr:1, dc:0}, {dr:0, dc:-1}, {dr:0, dc:1}];
-            for(let r=0; r<currentDiff.rows; r++)
-                for(let c=0; c<currentDiff.cols; c++)
-                    if(grid[r][c].isCriminal) dirs.forEach(d => { addNoise(r+d.dr, c+d.dc, 5); addNoise(r+d.dr*2, c+d.dc*2, 1); });
+            for(let r=0; r<currentDiff.rows; r++){
+                for(let c=0; c<currentDiff.cols; c++){
+                    if(grid[r][c].isCriminal) {
+                        dirs.forEach(d => { addNoise(r+d.dr, c+d.dc, 5); addNoise(r+d.dr*2, c+d.dc*2, 1); });
+                    }
+                }
+            }
         }
 
         function addNoise(r, c, v) { if(r>=0 && r<currentDiff.rows && c>=0 && c<currentDiff.cols) grid[r][c].noise += v; }
@@ -379,22 +371,27 @@
         function handleInput(r, c, el, inputType) {
             if(gameOver) return;
             if(isFirstClick) { generateMap(r, c); isFirstClick = false; revealCell(r, c); return; }
-            let cell = grid[r][c]; if(cell.revealed || cell.checked) return;
+            
+            let cell = grid[r][c];
+            if(cell.revealed || cell.checked) return;
             let action = (inputType === 'right') ? 'arrest' : currentMode;
 
             if(action === 'investigate') {
                 if(cell.isCriminal) {
-                    lives--; caught++; updateUI(); cell.checked = true; el.classList.add('busted'); el.querySelector('.noise-icon').innerText = "👹";
+                    lives--; caught++; updateUI();
+                    cell.checked = true; el.classList.add('busted'); el.querySelector('.noise-icon').innerText = "👹"; 
                     openSafeNeighbors(r, c);
                     if(lives <= 0) { gameOver = true; document.getElementById('game-over-modal').style.display='flex'; }
-                    else if(caught === currentDiff.criminals) document.getElementById('victory-modal').style.display='flex';
-                } else revealCell(r, c);
+                    else { showToast("범인 발견! (하트 -1)", "red"); if(caught === currentDiff.criminals) setTimeout(() => { gameOver = true; document.getElementById('victory-modal').style.display='flex'; }, 500); }
+                } else { revealCell(r, c); }
             } else {
                 if(cell.isCriminal) {
-                    cell.checked = true; el.classList.add('arrested'); el.querySelector('.noise-icon').innerText = "👮‍♂️"; caught++; updateUI(); openSafeNeighbors(r, c);
-                    if(caught === currentDiff.criminals) document.getElementById('victory-modal').style.display='flex';
+                    cell.checked = true; el.classList.add('arrested'); el.querySelector('.noise-icon').innerText = "👮‍♂️"; 
+                    caught++; updateUI(); openSafeNeighbors(r, c);
+                    if(caught === currentDiff.criminals) { gameOver = true; document.getElementById('victory-modal').style.display='flex'; } else { showToast("검거 성공!", "#3498db"); }
                 } else {
                     lives--; updateUI(); el.classList.add('angry');
+                    showToast(`억울해요! (${cell.noise}dB)`, "red");
                     setTimeout(() => { el.classList.remove('angry'); revealCell(r, c); }, 600);
                     if(lives <= 0) { gameOver = true; document.getElementById('game-over-modal').style.display='flex'; }
                 }
@@ -403,25 +400,26 @@
 
         function revealCell(r, c) {
             let cell = grid[r][c]; if(cell.revealed) return;
-            cell.revealed = true; let el = document.querySelector(`.window[data-r='${r}'][data-c='${c}']`);
+            cell.revealed = true; 
+            let el = document.querySelector(`.window[data-r='${r}'][data-c='${c}']`);
             el.classList.add('revealed');
-            if(cell.isEmpty) { el.classList.add('empty-house'); el.querySelector('.noise-icon').innerText = "🚫"; return; }
             
-            // ⭐ 히트맵/기본 모드 공통 시각화 로직
+            if(cell.isEmpty) { el.classList.add('empty-house'); el.querySelector('.noise-icon').innerText = "🚫"; return; }
+
+            // ⭐ 히트맵 모드: 15dB 심연의 보라색 추가
             if(currentDiff.isHeat) {
-                let h = cell.noise >= 10 ? 3 : (cell.noise >= 5 ? 2 : (cell.noise > 0 ? 1 : 0));
-                el.classList.add(`h-${h}`);
-                if(h === 0) floodFill(r, c);
-                // 히트맵에서는 숫자 표시 생략하고 종료
+                let hLevel = cell.noise >= 15 ? 4 : (cell.noise >= 10 ? 3 : (cell.noise >= 5 ? 2 : (cell.noise > 0 ? 1 : 0)));
+                el.classList.add(`h-${hLevel}`);
+                if(hLevel === 0) floodFill(r, c);
+                return;
+            }
+
+            if(cell.noise > 0) {
+                let level = cell.noise >= 10 ? 3 : (cell.noise >= 5 ? 2 : 1);
+                el.classList.add(`level-${level}`); el.querySelector('.val').innerText = cell.noise;
+                el.querySelector('.noise-icon').innerText = ["🔈", "🔊", "🔥"][level-1];
             } else {
-                if(cell.noise > 0) {
-                    let lv = cell.noise >= 10 ? 3 : (cell.noise >= 5 ? 2 : 1);
-                    el.classList.add(`level-${lv}`); el.querySelector('.val').innerText = cell.noise;
-                    el.querySelector('.noise-icon').innerText = ["🔈", "🔊", "🔥"][lv-1];
-                } else {
-                    el.classList.add('safe'); el.querySelector('.noise-icon').innerText = "🤍"; 
-                    floodFill(r, c);
-                }
+                el.classList.add('safe'); el.querySelector('.noise-icon').innerText = "🤍"; floodFill(r, c);
             }
         }
 
@@ -431,6 +429,7 @@
                 if(nr>=0 && nr<currentDiff.rows && nc>=0 && nc<currentDiff.cols && !grid[nr][nc].isCriminal && !grid[nr][nc].revealed) revealCell(nr, nc);
             });
         }
+
         function openSafeNeighbors(r, c) {
             [[0,1],[0,-1],[1,0],[-1,0]].forEach(([dr, dc]) => {
                 let nr=r+dr, nc=c+dc;
@@ -442,11 +441,16 @@
                 }
             });
         }
+
         function updateUI() {
             let h = ""; for(let i=0; i<3; i++) h += (i < lives ? "❤️" : "💔");
-            document.getElementById('lives').innerHTML = h; document.getElementById('score').innerText = caught;
+            document.getElementById('lives').innerHTML = h; scoreEl.innerText = caught;
         }
-        function showToast(msg, color) { toast.innerText = msg; toast.style.display = "block"; toast.style.borderColor = color; setTimeout(() => toast.style.display = "none", 1500); }
+
+        function showToast(msg, color) {
+            toast.innerText = msg; toast.style.display = "block"; toast.style.borderColor = color;
+            setTimeout(() => toast.style.display = "none", 1500);
+        }
 
         setDifficulty('easy', document.querySelector('.btn-diff.active'));
         updateTutorial(); 
