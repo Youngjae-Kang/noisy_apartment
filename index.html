@@ -66,7 +66,6 @@
         .btn-diff.abyss2 { border-color: #581845; color: #c70039; font-weight: 900; }
         .btn-diff.abyss2.active { background: #581845; color: #ffc300; border-color: #ff5733; box-shadow: 0 0 20px #c70039; animation: pulse-purple 1.5s infinite; }
         
-        /* ⭐ 빈집모드 버튼 스타일 */
         .btn-diff.empty-mode { border-color: #95a5a6; color: #bdc3c7; }
         .btn-diff.empty-mode.active { background: #7f8c8d; color: #fff; border-color: #bdc3c7; box-shadow: 0 0 10px #7f8c8d; }
 
@@ -100,8 +99,15 @@
         .window.revealed { cursor: default; }
         .window.revealed.safe { background-color: #f5f6fa; border-color: #dcdde1; box-shadow: none; }
         
-        /* ⭐ 빈집 스타일 */
-        .window.revealed.empty-house { background-color: #7f8c8d; border-color: #2c3e50; color: #2c3e50; opacity: 0.7; }
+        /* ⭐ 빈집 스타일 (클릭 가능하도록 cursor 유지) */
+        .window.revealed.empty-house { background-color: #7f8c8d; border-color: #2c3e50; color: #2c3e50; opacity: 0.7; cursor: pointer !important; }
+
+        /* ⭐ 메모 레이어 스타일 */
+        .memo-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2em; z-index: 5; pointer-events: none;
+        }
 
         .window.revealed.level-1 { background-color: #fff9c4; color: #fbc02d; border-color: #fbc02d; box-shadow: inset 0 0 10px #fff176; }
         .window.revealed.level-2 { background-color: #ffcc80; color: #e65100; border-color: #fb8c00; box-shadow: inset 0 0 10px #ffb74d; font-weight: 900; }
@@ -301,7 +307,6 @@
             master: { rows: 12, cols: 10, criminals: 20, emptyRate: 0 },
             abyss: { rows: 15, cols: 12, criminals: 40, emptyRate: 0 },
             abyss2: { rows: 20, cols: 15, criminals: 70, emptyRate: 0 },
-            // ⭐ 정보제한 모드 설정 (고급 사이즈 + 20% 빈집)
             empty: { rows: 10, cols: 8, criminals: 13, emptyRate: 0.2 }
         };
         let currentDiff = DIFFICULTIES.easy;
@@ -345,7 +350,7 @@
                 for(let c=0; c<currentDiff.cols; c++){
                     let cell = document.createElement('div');
                     cell.className = 'window'; cell.dataset.r = r; cell.dataset.c = c;
-                    cell.innerHTML = `<div class="noise-icon"></div><div class="val"></div>`;
+                    cell.innerHTML = `<div class="memo-layer"></div><div class="noise-icon"></div><div class="val"></div>`;
                     cell.onclick = () => handleInput(r, c, cell, 'left');
                     cell.oncontextmenu = (e) => { e.preventDefault(); handleInput(r, c, cell, 'right'); };
                     board.appendChild(cell);
@@ -365,8 +370,7 @@
             for(let r=0; r<currentDiff.rows; r++){
                 let row = [];
                 for(let c=0; c<currentDiff.cols; c++){
-                    // ⭐ isEmpty 속성 추가
-                    row.push({ isCriminal: false, isEmpty: false, noise: 0, revealed: false, checked: false, el: document.querySelector(`.window[data-r='${r}'][data-c='${c}']`) });
+                    row.push({ isCriminal: false, isEmpty: false, noise: 0, revealed: false, checked: false, memoState: 0, el: document.querySelector(`.window[data-r='${r}'][data-c='${c}']`) });
                 }
                 grid.push(row);
             }
@@ -384,8 +388,6 @@
                 if(tooClose) continue;
                 grid[r][c].isCriminal = true; placed++;
             }
-
-            // ⭐ 빈집 배치 (범인이 아닌 곳 중 랜덤)
             if(currentDiff.emptyRate > 0) {
                 for(let r=0; r<currentDiff.rows; r++){
                     for(let c=0; c<currentDiff.cols; c++){
@@ -395,7 +397,6 @@
                     }
                 }
             }
-
             const dirs = [{dr:1, dc:0}, {dr:0, dc:-1}, {dr:0, dc:1}];
             for(let r=0; r<currentDiff.rows; r++){
                 for(let c=0; c<currentDiff.cols; c++){
@@ -411,7 +412,17 @@
         function handleInput(r, c, el, inputType) {
             if(gameOver) return;
             if(isFirstClick) { generateMap(r, c); isFirstClick = false; revealCell(r, c); return; }
+            
             let cell = grid[r][c];
+
+            // ⭐ 빈집 메모 기능: 이미 공개된 빈집(🚫) 클릭 시 메모 상태 순환
+            if(cell.revealed && cell.isEmpty && inputType === 'left') {
+                const memoIcons = ["", "👹", "⭕"];
+                cell.memoState = (cell.memoState + 1) % memoIcons.length;
+                el.querySelector('.memo-layer').innerText = memoIcons[cell.memoState];
+                return;
+            }
+
             if(cell.revealed || cell.checked) return;
             let action = (inputType === 'right') ? 'arrest' : currentMode;
 
@@ -439,11 +450,10 @@
             let cell = grid[r][c]; if(cell.revealed) return;
             cell.revealed = true; cell.el.classList.add('revealed');
             
-            // ⭐ 빈집 처리 (측정 불가)
             if(cell.isEmpty) {
                 cell.el.classList.add('empty-house');
                 cell.el.querySelector('.noise-icon').innerText = "🚫";
-                return; // 숫자 표시 및 연쇄 오픈 중단
+                return; 
             }
 
             if(safeBonus) cell.el.classList.add('safe-open');
